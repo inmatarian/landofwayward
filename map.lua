@@ -29,7 +29,7 @@ function Layer:draw( camera )
     for x = left, right do
       local tile = self:get( x, y )
       if tile > 0 then
-        Graphics.drawTile( (x-left-offx)*16-8, (y-top-offy)*16, tile )
+        Graphics.drawTile( (x-left-offx)*16, (y-top-offy)*16, tile )
       end
     end
   end

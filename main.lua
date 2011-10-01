@@ -50,185 +50,59 @@ Animator = class()
 
 function Animator:init( frames )
   self.frames = frames or {}
+  self.pattern = nil
   self.index = 1
   self.clock = 0
 end
 
-function Animator:add( name, length )
-  table.insert(self.frames, {name=name, length=length})
+function Animator:addPattern( name, pattern )
+  self.frames[name] = pattern
+end
+
+function Animator:setPattern( name )
+  if self.pattern ~= name then
+    self.pattern = name
+    self.index = 1
+    self.clock = 0
+  end
 end
 
 function Animator:update(dt)
+  if not self.pattern then return end
   self.clock = self.clock + dt
-  while self.clock >= self.frames[self.index].length do
-    self.clock = self.clock - self.frames[self.index].length
+  local length = self.frames[self.pattern][self.index][2]
+  while self.clock >= length do
+    self.clock = self.clock - length
     self.index = self.index + 1
-    if self.index > #self.frames then
+    if self.index > #self.frames[self.pattern] then
       self.index = 1
     end
   end
 end
 
 function Animator:current()
-  return self.frames[self.index].name
-end
-
-----------------------------------------
-
-PlainMap = class()
-
-function PlainMap:init( x, y, width, height )
-  self.x = x
-  self.y = y
-  self.width = width
-  self.height = height
-  self.data = {}
-end
-
-function PlainMap:set( x, y, v )
-  if x < self.x or y < self.y or x >= self.x+self.width or y >= self.y+self.height then return end
-  if not self.data[y] then self.data[y] = {} end
-  self.data[y][x] = v
-end
-
-function PlainMap:get( x, y )
-  if x < self.x or y < self.y or x >= self.x+self.width or y >= self.y+self.height then return end
-  if not self.data[y] then return end
-  return self.data[y][x]
-end
-
-----------------------------------------
-
-WorldChunk = class()
-
--- In the algo, the corners are clockwise.
--- In the ctor, the corners are TL TR BL BR for ease of use.
-function WorldChunk:init( x, y, w, h, tl, tr, bl, br )
-  self.x = x
-  self.y = y
-  self.w = w
-  self.h = h
-  self.tl = tl
-  self.tr = tr
-  self.bl = bl
-  self.br = br
-  self.heightMap = PlainMap( x, y, w, h )
-  self.floor = PlainMap( x, y, w, h )
-end
-
-function WorldChunk:generate()
-  local noiseMap = NoiseMap(self.x, self.y, self.w, self.h, self.tl, self.tr, self.br, self.bl)
-  local heightMap = self.heightMap
-  local floorMap = self.floor
-  for y = self.y, self.y+self.h-1 do
-    for x = self.x, self.x+self.w-1 do
-      local v = noiseMap:get(x, y)
-      local cell
-      if v < 0.25 then cell = 4
-      elseif v < 0.35 then cell = 6
-      elseif v < 0.65 then cell = 5
-      else cell = 7 end
-      floorMap:set( x, y, cell )
-      heightMap:set( x, y, v )
-    end
-  end
-end
-
-function WorldChunk:containsPoint( px, py )
-  return ( px >= self.x and px < self.x + self.w ) and
-         ( py >= self.y and py < self.y + self.h )
-end
-
-function intersect( ax, ay, aw, ah, bx, by, bw, bh )
-  local min, max = math.min, math.max
-  local ax2, ay2 = ax + aw, ay + ah
-  local bx2, by2 = bx + bw, by + bh
-  local tx1 = max(ax, bx);
-  local tx2 = min(ax2, bx2);
-  local ty1 = max(ay, by);
-  local ty2 = min(ay2, by2);
-  local tw = tx2 - tx1
-  local th = ty2 - ty1
-  if tw < 0 or th < 0 then return end
-  return tx1, ty1, tw, th
-end
-
---[==[
-function WorldChunk:draw( px, py, ox, oy )
-  local vx, vy, vw, vh = intersect( self.x, self.y, self.w, self.h, px-10, py-7, 22, 16 )
-  if not vx then return end
-  for y = vy, vy+vh-1 do
-    for x = vx, vx+vw-1 do
-      local floor = self.floor:get( x, y )
-      if floor then
-        local tx, ty = (x-px-ox)*16+152, (y-py-oy)*16+112
-        Graphics.drawTile( tx, ty, floor )
-        visi = visi + 1
-      end
-    end
-  end
-end
-]==]
-----------------------------------------
-
-WorldMap = class()
-WorldMap.CHUNK_SIZE = 64
-
-function WorldMap:init()
-  self.chunks = PlainMap( -128, -128, 256, 256 )
-end
-
-function WorldMap:draw( px, py )
-  pfx, pfy = math.floor(px), math.floor(py)
-  ox, oy = px - pfx, py - pfy
-  local wx, wy = math.floor(pfx/self.CHUNK_SIZE), math.floor(pfy/self.CHUNK_SIZE)
-  for y = wy - 1, wy + 1 do
-    for x = wx - 1, wx + 1 do
-      chunk = self.chunks:get( x, y )
-      if chunk then chunk:draw( pfx, pfy, ox, oy ) end
-    end
-  end
-end
-
-function WorldMap:generate( px, py )
-  px, py = math.floor(px), math.floor(py)
-  local SIZE = self.CHUNK_SIZE
-  local wx, wy = math.floor(px/SIZE), math.floor(py/SIZE)
-  for y = wy - 1, wy + 1 do
-    for x = wx - 1, wx + 1 do
-      chunk = self.chunks:get( x, y )
-      if not chunk then
-        local tl, tr, bl, br
-        local north = self.chunks:get( x, y-1 )
-        if north then tl = north.bl; tr = north.br end
-        local south = self.chunks:get( x, y+1 )
-        if south then bl = south.tl; br = south.tr end
-        local west = self.chunks:get( x-1, y )
-        if west then tl = west.tr; bl = west.br end
-        local east = self.chunks:get( x+1, y )
-        if east then tr = east.tl; br = east.bl end
-
-        if not tl then tl = math.random() end
-        if not tr then tr = math.random() end
-        if not bl then bl = math.random() end
-        if not br then br = math.random() end
-
-        print( "Generating chunk at", x, y, px, py, tl, tr, bl, br )
-        local newChunk = WorldChunk( x*SIZE, y*SIZE, SIZE, SIZE, tl, tr, bl, br )
-        newChunk:generate()
-        self.chunks:set( x, y, newChunk )
-      end
-    end
-  end
+  if not self.pattern then return 0 end
+  return self.frames[self.pattern][self.index][1]
 end
 
 ----------------------------------------
 
 Player = Sprite:subclass()
+do
+  local LENGTH = 0.25
+  Player.animFrames = {
+    N = { { 1, LENGTH }, { 2, LENGTH } },
+    S = { { 3, LENGTH }, { 4, LENGTH } },
+    W = { { 5, LENGTH }, { 6, LENGTH } },
+    E = { { 7, LENGTH }, { 8, LENGTH } }
+  }
+end
 
 function Player:init( x, y )
   print("Player.init", self, x, y )
   Player:superinit(self, x, y, 1, 1)
+  self.frame = 1
+  self.animator = Animator( Player.animFrames )
 end
 
 function Player:handleKeypress( u, d, l, r )
@@ -240,8 +114,16 @@ function Player:handleKeypress( u, d, l, r )
   if dir ~= "I" then self:move( dir ) end
 end
 
-function Player:draw(camera)
-  Player.__index.draw(self, camera)
+function Player:move( dir )
+  if self.moving then return end
+  Player.__index.move(self, dir)
+  self.animator:setPattern(dir)
+end
+
+function Player:update(dt)
+  Player.__index.update(self, dt)
+  self.animator:update(dt)
+  self.frame = self.animator:current()
 end
 
 ----------------------------------------
@@ -250,36 +132,38 @@ Camera = class()
 
 function Camera:init( sprite )
   self.following = sprite
-  self.x = sprite.x
-  self.y = sprite.y
+  self.x = sprite.x - 9.5
+  self.y = sprite.y - 7
   self.left, self.top, self.right, self.bottom = 0, 0, 256, 256
+  self:restrictBounds()
 end
 
 function Camera:setBounds( left, top, right, bottom )
   self.left, self.top, self.right, self.bottom = left, top, right, bottom
+  self:restrictBounds()
 end
 
 function Camera:update(dt)
   local spr = self.following
-  local dx, dy = self.x - spr.x, self.y - spr.y
+  -- local xwindow, ywindow = 3, 2
+  local tx, ty = spr.x-9.5, spr.y-7
+  local dx, dy = tx-self.x, ty-self.y
+  local speed = dt * 2.5
 
-  if dx < -2 then
-    self.x = spr.x - 2
-  elseif dx > 2 then
-    self.x = spr.x + 2
-  end
+  self:scroll( dx*speed, dy*speed )
+end
 
-  if dy < -2 then
-    self.y = spr.y - 2
-  elseif dy > 2 then
-    self.y = spr.y + 2
-  end
+function Camera:scroll( dx, dy )
+  self.x = self.x + dx
+  self.y = self.y + dy
+  self:restrictBounds()
+end
 
+function Camera:restrictBounds()
   if self.x < self.left then self.x = self.left
-  elseif self.x > self.right-21 then self.x = self.right-21 end
+  elseif self.x > self.right-20 then self.x = self.right-20 end
   if self.y < self.top then self.y = self.top
   elseif self.y > self.bottom-15 then self.y = self.bottom-15 end
-
 end
 
 function Camera:viewPos()
@@ -289,8 +173,8 @@ end
 function Camera:screenTranslate( x, y, w, h )
   w = (w or 0) * 16
   h = (h or 0) * 16
-  x = (x-self.x)*16+(0.5*Graphics.gameWidth)-(0.5*w)
-  y = (y-self.y)*16+(0.5*Graphics.gameHeight)-(0.5*h)
+  x = (x-self.x)*16 -- +(0.5*Graphics.gameWidth)-(0.5*w)
+  y = (y-self.y)*16 -- +(0.5*Graphics.gameHeight)-(0.5*h)
   return x, y, w, h
 end
 

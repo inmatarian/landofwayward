@@ -2,7 +2,7 @@
 require "class"
 
 Sprite = class {
-  speed = 7;
+  speed = 5;
   moving = false;
   xexcess = 0;
   yexcess = 0;
@@ -17,11 +17,16 @@ function Sprite:init( x, y, w, h )
   self.y = y or 0
   self.w = w or 1
   self.h = h or 1
+  self.frame = 0
 end
 
 function Sprite:draw( camera )
   local x, y, w, h = camera:screenTranslate( self.x, self.y, self.w, self.h )
-  love.graphics.rectangle( "fill", x, y, w, h )
+  if self.frame > 0 then
+    Graphics.drawSprite( x, y, self.frame )
+  else
+    love.graphics.rectangle( "fill", x, y, w, h )
+  end
 end
 
 function Sprite:update(dt)
@@ -29,13 +34,13 @@ function Sprite:update(dt)
 end
 
 function Sprite:updatePosition(dt)
+  local xex, yex = self.xexcess, self.yexcess
+  self.xexcess, self.yexcess = 0, 0
   if not self.moving then return end
   local xt, yt = self.xtarget, self.ytarget
   local oldx, oldy = self.x, self.y
   local nx, ny = oldx, oldy
   local speed = self.speed * dt
-  local xex, yex = self.xexcess, self.yexcess
-  self.xexcess, self.yexcess = 0, 0
 
   if xt < oldx then
     nx = oldx - speed - xex
