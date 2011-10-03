@@ -1,5 +1,6 @@
 
 require "class"
+require "graphics"
 
 Sprite = class {
   speed = 5;
@@ -18,6 +19,11 @@ function Sprite:init( x, y, w, h )
   self.w = w or 1
   self.h = h or 1
   self.frame = 0
+end
+
+function Sprite.sortingFunction( a, b )
+  if a.y > b.y then return false end
+  return ( a.y < b.y ) or ( a.x < b.y )
 end
 
 function Sprite:draw( camera )
@@ -86,9 +92,17 @@ function Sprite:move( dir )
   elseif dir == "W" then xt = xt - 1
   elseif dir == "E" then xt = xt + 1
   end
+
+  local ent = self.map:getEntity( xt, yt )
+  if ent == 769 then return end
+
   self.lastdir = dir
   self.xtarget, self.ytarget = xt, yt
   self.xexcess, self.yexcess = 0, 0
   self.moving = true
+end
+
+function Sprite:setMap( map )
+  self.map = map
 end
 

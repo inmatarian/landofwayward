@@ -1,6 +1,7 @@
 
 require "class"
 require "graphics"
+require "sprite"
 require "util"
 
 ------------------------------------------------------------------------------
@@ -31,6 +32,15 @@ function Layer:draw( camera )
       if tile > 0 then
         Graphics.drawTile( (x-left-offx)*16, (y-top-offy)*16, tile )
       end
+    end
+  end
+end
+
+function Layer:findFirst( x )
+  local N = #self.data
+  for i = 1, N do
+    if self.data[i] == x then
+      return (i-1)%self.width, math.floor((i-1)/self.width)
     end
   end
 end
@@ -80,7 +90,8 @@ end
 Map = class( { width=0; height=0 } )
 
 function Map:init( filename )
-  self.layers = {}
+  self.layers = { above = {}, below = {}, entity = false }
+  self.sprites = {}
   self:loadTMX( filename )
 end
 
@@ -101,17 +112,56 @@ function Map:loadTMX( filename )
 
   for _, elem in ipairs(layers) do
     local w, h = tonumber(elem.xarg.width), tonumber(elem.xarg.height)
-    local dataelem = DOM.getElementByLabel( elem, "data" )
-    local layer = DOM.loadLayer( dataelem, w, h, firstgid )
-    table.insert( self.layers, layer )
+    local layertype
+    local props = DOM.getElementByLabel( elem, "properties" )
+    for _, property in ipairs(props) do
+      if property.xarg.name == "type" then layertype = property.xarg.value end
+    end
+    if layertype ~= nil then
+      local dataelem = DOM.getElementByLabel( elem, "data" )
+      local layer = DOM.loadLayer( dataelem, w, h, firstgid )
+      if layertype == "entity" then
+        self.layers.entity = layer
+      elseif self.layers[layertype] then
+        table.insert( self.layers[layertype], layer )
+      end
+    end
   end
 end
 
 function Map:draw( camera )
-  for _, layer in ipairs( self.layers ) do
+  for _, layer in ipairs( self.layers.below ) do
     layer:draw(camera)
+  end
+  for _, sprite in ipairs( self.sprites ) do
+    sprite:draw(camera)
+  end
+  for _, layer in ipairs( self.layers.above ) do
+    layer:draw(camera)
+  end
+  if self.drawEntityLayer then
+    self.layers.entity:draw(camera)
   end
 end
 
+function Map:addSprite( sprite )
+  table.insert(self.sprites, sprite)
+  sprite:setMap( self )
+end
 
+function Map:update(dt)
+  for _, sprite in ipairs( self.sprites ) do
+    sprite:update(dt)
+  end
+  table.sort( self.sprites, Sprite.sortingFunction )
+end
 
+function Map:locateEntity( number )
+  if not self.layers.entity then return end
+  return self.layers.entity:findFirst( number )
+end
+
+function Map:getEntity( x, y )
+  if not self.layers.entity then return end
+  return self.layers.entity:get( x, y )
+end
