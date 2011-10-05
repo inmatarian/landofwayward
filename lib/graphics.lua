@@ -5,9 +5,9 @@ Graphics = {
   gameWidth = 320,
   gameHeight = 240,
   tileBounds = Util.strict {},
-  tileFilename = "tileset.png",
-  spriteFilename = "sprites.png",
-  fontFilename = "wayfont.png",
+  tileFilename = "gfx/tileset.png",
+  spriteFilename = "gfx/sprites.png",
+  fontFilename = "gfx/wayfont.png",
   tiles = {},
   sprites = {},
   fontset = [==[ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~]==],
@@ -17,6 +17,7 @@ Graphics.yScale = math.floor(love.graphics.getHeight() / Graphics.gameHeight)
 
 WHITE = Util.strict { 255, 255, 255, 255 }
 GRAY = Util.strict { 144, 144, 144, 255 }
+BLACK = Util.strict { 0, 0, 0, 255 }
 
 function Graphics.init()
   love.graphics.setColorMode("modulate")
@@ -89,7 +90,8 @@ function Graphics.changeScale( size )
 end
 
 function Graphics.text( x, y, color, str )
-  if x == "center" then x = 80-(str:len()*4) end
+  if x == "center" then x = 160-(str:len()*4) end
+  if y == "center" then y = 116 end
   love.graphics.setColor(color)
   for c in str:gmatch('.') do
     love.graphics.print(c, x, y)
