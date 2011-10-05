@@ -1,6 +1,4 @@
 
-require "class"
-
 Camera = class()
 
 function Camera:init( sprite )

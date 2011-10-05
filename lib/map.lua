@@ -1,11 +1,4 @@
 
-require "class"
-require "graphics"
-require "sprite"
-require "util"
-
-------------------------------------------------------------------------------
-
 Layer = class()
 
 function Layer:init( width, height )

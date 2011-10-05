@@ -1,8 +1,4 @@
 
-require "class"
-require "sprite"
-require "animator"
-
 Player = Sprite:subclass()
 do
   local LENGTH = 0.25

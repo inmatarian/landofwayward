@@ -1,6 +1,4 @@
 
-require "util"
-
 Graphics = {
   gameWidth = 320,
   gameHeight = 240,

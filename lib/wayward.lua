@@ -1,16 +1,4 @@
 
-require "class"
-require "sprite"
-require "util"
-require "graphics"
-require "sound"
-require "map"
-require "player"
-require "camera"
-require "logoState"
-
-----------------------------------------
-
 Wayward = class()
 
 function Wayward:init()
@@ -68,11 +56,11 @@ function Wayward:keyreleased(key, unicode)
 end
 
 function Wayward:focus( focused )
-
+  -- Pause?
 end
 
 function Wayward:quit()
-
+  -- Yes no maybe so?
 end
 
 function Wayward:pushState( state )
@@ -114,6 +102,7 @@ end
 function TestState:update(dt)
   local key = Waygame.keypress
   if key["escape"]==1 then Waygame:popState() end
+  if key["p"]==1 then Waygame:pushState( PauseState() ) end
   self.player:handleKeypress(key["up"], key["down"], key["left"], key["right"])
   self.map:update(dt)
   self.camera:update(dt)

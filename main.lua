@@ -1,10 +1,28 @@
-package.path = package.path .. ";./lib/?.lua"
 
-require "wayward"
+----------------------------------------
+-- Class loader
+
+Origin = {}
+
+function Origin.__index( t, k )
+  local f = k:lower()
+  if love.filesystem.isFile(f..".lua") then
+    print( "Require", f )
+    require( f )
+    return rawget(_G, k)
+  elseif love.filesystem.isFile("lib/"..f..".lua") then
+    print( "Require lib", f )
+    require( "lib/"..f )
+    return rawget(_G, k)
+  end
+end
 
 ----------------------------------------
 
 function love.run()
+
+  setmetatable( _G, Origin )
+
   local love = love
   local dt = 0
   local eventTrans = {

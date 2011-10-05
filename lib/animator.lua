@@ -1,6 +1,4 @@
 
-require "class"
-
 Animator = class()
 
 function Animator:init( frames )

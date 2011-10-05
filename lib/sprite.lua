@@ -1,7 +1,4 @@
 
-require "class"
-require "graphics"
-
 Sprite = class {
   speed = 5;
   moving = false;

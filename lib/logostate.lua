@@ -1,7 +1,4 @@
 
-require "class"
-require "graphics"
-
 ----------------------------------------
 
 local function shuffleTable( t )
