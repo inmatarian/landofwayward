@@ -79,12 +79,30 @@ TestState = class()
 
 function TestState:init()
   self.map = Map("maps/testboard.tmx")
-  local px, py = self.map:locateEntity( 785 )
+  local px, py = self.map:locateEntity(EntityCode.SYLVIA)
   px, py = px or 1, py or 1
   self.player = Player( px, py )
   self.camera = Camera(self.player)
   self.map:addSprite(self.player)
+  self:loadThings()
   self.camera:setBounds( 0, 0, self.map.width, self.map.height )
+end
+
+function TestState:loadThings()
+  for y = 0, self.map.height do
+    for x = 0, self.map.width do
+      local code = self.map:getEntity( x, y )
+      local factory = self.entityFactory[code]
+      if factory then self.map:addSprite( factory(self, x, y) ) end
+    end
+  end
+end
+
+do
+  local factory = {}
+  factory[EntityCode.AMMO] = function(self, x, y) return Ammo(x, y) end;
+  factory[EntityCode.HEALTH] = function(self, x, y) return Health(x, y) end;
+  TestState.entityFactory = factory
 end
 
 function TestState:draw()

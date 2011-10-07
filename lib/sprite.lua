@@ -20,7 +20,7 @@ end
 
 function Sprite.sortingFunction( a, b )
   if a.y > b.y then return false end
-  return ( a.y < b.y ) or ( a.x < b.y )
+  return ( a.y < b.y ) or ( a.x < b.x )
 end
 
 function Sprite:draw( camera )
