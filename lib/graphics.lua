@@ -8,6 +8,10 @@ Graphics = {
   fontFilename = "gfx/wayfont.png",
   tiles = {},
   sprites = {},
+  tilesDrawn = 0,
+  spritesDrawn = 0,
+  fps = 0,
+  fpsClock = 0,
   fontset = [==[ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~]==],
 }
 Graphics.xScale = math.floor(love.graphics.getWidth() / Graphics.gameWidth)
@@ -23,6 +27,28 @@ function Graphics.init()
   Graphics.loadFont(Graphics.fontFilename)
   Graphics.loadTileset(Graphics.tileFilename)
   Graphics.loadSprites(Graphics.spriteFilename)
+end
+
+function Graphics.update(dt)
+  Graphics.fpsClock = Graphics.fpsClock + dt
+  if Graphics.fpsClock > 1 then
+    Graphics.fpsClock = Graphics.fpsClock - 1
+    Graphics.fps = love.timer.getFPS()
+  end
+end
+
+function Graphics.start()
+  love.graphics.scale( Graphics.xScale, Graphics.yScale )
+  love.graphics.setColor( 255, 255, 255 )
+  Graphics.tilesDrawn = 0
+  Graphics.spritesDrawn = 0
+end
+
+function Graphics.stop( outputDebug )
+  if outputDebug then
+    Graphics.text( 8, 224, WHITE,
+      string.format("T:%i S:%i FPS:%i", Graphics.tilesDrawn, Graphics.spritesDrawn, Graphics.fps) )
+  end
 end
 
 function Graphics.loadTileset(name)
@@ -68,12 +94,14 @@ function Graphics.drawTile( x, y, tile )
   local xs, ys = Graphics.xScale, Graphics.yScale
   love.graphics.drawq( Graphics.tilesetImage, Graphics.tiles[tile],
     math.floor(x*ys)/ys, math.floor(y*ys)/ys )
+  Graphics.tilesDrawn = Graphics.tilesDrawn + 1
 end
 
 function Graphics.drawSprite( x, y, idx )
   local xs, ys = Graphics.xScale, Graphics.yScale
   love.graphics.drawq( Graphics.spriteImage, Graphics.sprites[idx],
     math.floor(x*ys)/ys, math.floor(y*ys)/ys )
+  Graphics.spritesDrawn = Graphics.spritesDrawn + 1
 end
 
 function Graphics.saveScreenshot()

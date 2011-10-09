@@ -25,6 +25,7 @@ end
 
 function Sprite:draw( camera )
   local x, y, w, h = camera:screenTranslate( self.x, self.y, self.w, self.h )
+  if x < -w or y < -h or x > Graphics.gameWidth or y > Graphics.gameHeight then return end
   if self.frame > 0 then
     Graphics.drawSprite( x, y, self.frame )
   else
@@ -69,6 +70,7 @@ function Sprite:updatePosition(dt)
   end
 
   self.x, self.y = nx, ny
+  self.map:updateSpatialHash( self, oldx, oldy, self.w, self.h )
 end
 
 function Sprite:setPos( newx, newy )
@@ -91,7 +93,9 @@ function Sprite:move( dir )
   end
 
   local ent = self.map:getEntity( xt, yt )
-  if ent == 769 then return end
+  if ent == EntityCode.BLOCK then return end
+  local other = self.map:getSpriteAt( xt, yt )
+  if other then return end
 
   self.lastdir = dir
   self.xtarget, self.ytarget = xt, yt
@@ -101,5 +105,6 @@ end
 
 function Sprite:setMap( map )
   self.map = map
+  self.map:updateSpatialHash( self )
 end
 

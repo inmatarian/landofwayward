@@ -1,9 +1,10 @@
 
 Layer = class()
 
-function Layer:init( width, height )
+function Layer:init( width, height, default )
   self.width = width
   self.height = height
+  self.default = self.default or 0
   self.data = {}
 end
 
@@ -13,11 +14,15 @@ function Layer:set( x, y, v )
 end
 
 function Layer:get( x, y )
-  if x < 0 or y < 0 or x >= self.width or y >= self.height then return 0 end
+  if x < 0 or y < 0 or x >= self.width or y >= self.height then return self.default end
   return self.data[1 + (y*self.width + x)]
 end
 
-function Layer:draw( camera )
+------------------------------------------------------------------------------
+
+TileLayer = Layer:subclass()
+
+function TileLayer:draw( camera )
   local left, top, right, bottom, offx, offy = camera:layerDrawingParameters()
   for y = top, bottom do
     for x = left, right do
@@ -29,7 +34,7 @@ function Layer:draw( camera )
   end
 end
 
-function Layer:findFirst( x )
+function TileLayer:findFirst( x )
   local N = #self.data
   for i = 1, N do
     if self.data[i] == x then
@@ -58,7 +63,7 @@ function DOM.getElementsByLabel( elem, str )
 end
 
 function DOM.loadLayer( data, width, height, firstgid )
-  local layer = Layer( width, height )
+  local layer = TileLayer( width, height )
   if data.xarg.encoding == "csv" then
     local str = data[1]
     local N, i, x, y = str:len(), 0, 0, 0
@@ -86,6 +91,7 @@ function Map:init( filename )
   self.layers = { above = {}, below = {}, entity = false }
   self.sprites = {}
   self:loadTMX( filename )
+  self.spatialHash = Layer( self.width, self.height, false )
 end
 
 function Map:loadTMX( filename )
@@ -158,3 +164,21 @@ function Map:getEntity( x, y )
   if not self.layers.entity then return end
   return self.layers.entity:get( x, y )
 end
+
+function Map:modifySpatialHash( x, y, w, h, value )
+  for sy = y, y+h-0.01 do
+    for sx = x, x+w-0.01 do
+      self.spatialHash:set( sx, sy, value )
+    end
+  end
+end
+
+function Map:updateSpatialHash( sprite, ox, oy, ow, oh )
+  if ox then self:modifySpatialHash(ox, oy, ow, oh, nil) end
+  self:modifySpatialHash(sprite.x, sprite.y, sprite.w, sprite.h, sprite)
+end
+
+function Map:getSpriteAt( x, y )
+  return self.spatialHash:get(x, y)
+end
+

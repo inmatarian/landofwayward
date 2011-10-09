@@ -13,7 +13,7 @@ function Wayward:init()
   self.keypress = Util.setDefaultValue( {}, 0 );
 
   self.stateStack = {}
-  self:pushState( TestState() )
+  self:pushState( PlaceholderState() )
   self:pushState( LogoState() )
 end
 
@@ -32,7 +32,8 @@ function Wayward:update(dt)
     self.stateStack[#self.stateStack]:update(dt)
   end
 
-  Sound.update()
+  Sound.update(dt)
+  Graphics.update(dt)
   for i, v in pairs(key) do
     key[i] = v + dt
   end
@@ -40,11 +41,11 @@ function Wayward:update(dt)
 end
 
 function Wayward:draw()
-  love.graphics.scale( Graphics.xScale, Graphics.yScale )
-  love.graphics.setColor( 255, 255, 255 )
+  Graphics.start()
   if #self.stateStack > 0 then
     self.stateStack[#self.stateStack]:draw()
   end
+  Graphics.stop(true)
 end
 
 function Wayward:keypressed(key, unicode)
@@ -73,6 +74,13 @@ function Wayward:popState()
   table.remove( self.stateStack )
 end
 
+----------------------------------------
+PlaceholderState = class()
+function PlaceholderState:draw() end
+function PlaceholderState:update(dt)
+  Waygame:popState()
+  Waygame:pushState( TestState() )
+end
 ----------------------------------------
 
 TestState = class()
@@ -112,9 +120,9 @@ function TestState:draw()
 
   -- debug
   local pl = self.player
-  Graphics.text( 0, 0, WHITE, string.format("%.2f %.2f %.2f %.2f %i %i", pl.x, pl.y, pl.xexcess, pl.yexcess, pl.xtarget, pl.ytarget) )
+  Graphics.text( 0, 0, WHITE, string.format("PLY P(%.2f,%.2f) X(%.2f,%.2f) T(%i,%i)", pl.x, pl.y, pl.xexcess, pl.yexcess, pl.xtarget, pl.ytarget) )
   local vx, vy = cam:screenTranslate( pl.x, pl.y )
-  Graphics.text( 0, 8, WHITE, string.format("%.2f %.2f %.2f %.2f", cam.x, cam.y, vx, vy) )
+  Graphics.text( 0, 8, WHITE, string.format("CAM P(%.2f,Y%.2f) S(X%.2f,Y%.2f)", cam.x, cam.y, vx, vy) )
 end
 
 function TestState:update(dt)
