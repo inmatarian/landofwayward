@@ -1,7 +1,7 @@
 
 ----------------------------------------
---[[-- Class loader
--- Consider ditching this code, we shouldn't lazy-load this stuff.
+-- Class loader
+
 Origin = {}
 function Origin.__index( t, k )
   local f = k:lower()
@@ -15,39 +15,12 @@ function Origin.__index( t, k )
     return rawget(_G, k)
   end
 end
---]]--
-
-local libraries = {
-  "lib/class",
-  "lib/util",
-  "lib/graphics",
-  "lib/sound",
-  "lib/entitycodes",
-  "lib/sprite",
-  "lib/animator",
-  "lib/camera",
-  "lib/player",
-  "lib/items",
-  "lib/growingtext",
-  "lib/map",
-  "lib/logostate",
-  "lib/pausestate",
-  "lib/wayward",
-}
-
-local function loadLibraries()
-  for _, lib in ipairs( libraries ) do
-    require( lib )
-  end
-end
 
 ----------------------------------------
 
 function love.run()
 
-  loadLibraries()
-
-  -- setmetatable( _G, Origin )
+  setmetatable( _G, Origin )
 
   local love = love
   local dt = 0

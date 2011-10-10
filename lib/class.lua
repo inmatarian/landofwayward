@@ -1,23 +1,29 @@
 
 local function classcall(class, ...)
-  local inst = {}
-  setmetatable(inst, inst)
-  inst.__index = class
-  if inst.init then inst:init(...) end
+  local inst = setmetatable({}, class)
+  inst:init(...)
   return inst
 end
 
 local masterclass = {}
 
+function masterclass.init() end
+
 function masterclass:subclass( prototype )
   prototype = prototype or {}
-  prototype.__index = self
-  prototype.__call = classcall
-  return setmetatable(prototype, prototype)
+  prototype.__index = prototype
+  prototype_mt = {}
+  prototype_mt.__index = self
+  prototype_mt.__call = classcall
+  return setmetatable(prototype, prototype_mt)
+end
+
+function masterclass:super()
+  return getmetatable(self).__index
 end
 
 function masterclass:superinit(obj, ...)
-  self.__index.init(obj, ...)
+  return self:super().init(obj, ...)
 end
 
 function class( prototype )

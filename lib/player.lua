@@ -12,7 +12,7 @@ end
 
 function Player:init( x, y )
   print("Player.init", self, x, y )
-  Player:superinit(self, x, y, 1, 1)
+  Player:superinit( self, x, y, 1, 1 )
   self.frame = 1
   self.animator = Animator( Player.animFrames )
 end
@@ -28,12 +28,12 @@ end
 
 function Player:move( dir )
   if self.moving then return end
-  Player.__index.move(self, dir)
+  Player:super().move(self, dir)
   self.animator:setPattern(dir)
 end
 
 function Player:update(dt)
-  Player.__index.update(self, dt)
+  Player:super().update(self, dt)
   self.animator:update(dt)
   self.frame = self.animator:current()
 end
