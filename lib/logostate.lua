@@ -66,11 +66,11 @@ end
 function LogoState:draw()
   for _, v in pairs(self.list) do
     if v.vis then
-      Graphics.drawTile( v.x*16, v.y*16, 60 )
+      Graphics:drawTile( v.x*16, v.y*16, 60 )
     end
   end
   if self.textVis then
-    Graphics.text( "center", "center", WHITE, "Planet Badness" )
+    Graphics:text( "center", "center", WHITE, "Planet Badness" )
   end
 end
 

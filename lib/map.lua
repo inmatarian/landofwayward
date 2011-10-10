@@ -28,7 +28,7 @@ function TileLayer:draw( camera )
     for x = left, right do
       local tile = self:get( x, y )
       if tile > 0 then
-        Graphics.drawTile( (x-left-offx)*16, (y-top-offy)*16, tile )
+        Graphics:drawTile( (x-left-offx)*16, (y-top-offy)*16, tile )
       end
     end
   end
@@ -146,6 +146,15 @@ end
 function Map:addSprite( sprite )
   table.insert(self.sprites, sprite)
   sprite:setMap( self )
+end
+
+function Map:removeSprite( sprite )
+  for i, v in ipairs(self.sprites) do
+    if sprite==v then
+      table.remove( self.sprites, i )
+    end
+  end
+  self:modifySpatialHash(sprite.x, sprite.y, sprite.w, sprite.h, nil)
 end
 
 function Map:update(dt)

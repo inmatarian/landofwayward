@@ -26,6 +26,6 @@ function GrowingText:update(dt)
 end
 
 function GrowingText:draw()
-  Graphics.text( self.x, self.y, self.color, self.str:sub(1, self.count) )
+  Graphics:text( self.x, self.y, self.color, self.str:sub(1, self.count) )
 end
 

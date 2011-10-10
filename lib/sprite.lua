@@ -7,6 +7,7 @@ Sprite = class {
   xtarget = 0;
   ytarget = 0;
   lastdir = "I";
+  weakSpritesTable = setmetatable( {}, {__mode="kv"} )
 }
 
 function Sprite:init( x, y, w, h )
@@ -16,6 +17,8 @@ function Sprite:init( x, y, w, h )
   self.w = w or 1
   self.h = h or 1
   self.frame = 0
+
+  Sprite.weakSpritesTable[self]=self
 end
 
 function Sprite.sortingFunction( a, b )
@@ -27,7 +30,7 @@ function Sprite:draw( camera )
   local x, y, w, h = camera:screenTranslate( self.x, self.y, self.w, self.h )
   if x < -w or y < -h or x > Graphics.gameWidth or y > Graphics.gameHeight then return end
   if self.frame > 0 then
-    Graphics.drawSprite( x, y, self.frame )
+    Graphics:drawSprite( x, y, self.frame )
   else
     love.graphics.rectangle( "fill", x, y, w, h )
   end
@@ -95,12 +98,20 @@ function Sprite:move( dir )
   local ent = self.map:getEntity( xt, yt )
   if ent == EntityCode.BLOCK then return end
   local other = self.map:getSpriteAt( xt, yt )
-  if other then return end
+  if other then self:touch( other ) return end
 
   self.lastdir = dir
   self.xtarget, self.ytarget = xt, yt
   self.xexcess, self.yexcess = 0, 0
   self.moving = true
+end
+
+function Sprite:touch( other )
+  -- virtual
+end
+
+function Sprite:handleTouchedByPlayer( player )
+  -- virtual
 end
 
 function Sprite:setMap( map )

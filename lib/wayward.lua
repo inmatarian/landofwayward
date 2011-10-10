@@ -1,5 +1,8 @@
 
-Wayward = class()
+Wayward = class {
+  ammo = 0,
+  health = 100,
+}
 
 function Wayward:init()
   -- Global Variable and Singleton
@@ -7,7 +10,7 @@ function Wayward:init()
   Waygame = self
 
   math.randomseed( os.time() )
-  Graphics.init()
+  Graphics:init()
   Sound.init()
 
   self.keypress = Util.setDefaultValue( {}, 0 );
@@ -19,21 +22,21 @@ end
 
 function Wayward:update(dt)
   local key = self.keypress
-  if key["f2"] == 1 then Graphics.saveScreenshot() end
+  if key["f2"] == 1 then Graphics:saveScreenshot() end
   if key["f10"] == 1 then love.event.push('q') end
 
   local scale
   for i = 1, 4 do
     if key[ "" .. i ] == 1 then scale = i end
   end
-  if scale then Graphics.changeScale(scale) end
+  if scale then Graphics:changeScale(scale) end
 
   if #self.stateStack > 0 then
     self.stateStack[#self.stateStack]:update(dt)
   end
 
   Sound.update(dt)
-  Graphics.update(dt)
+  Graphics:update(dt)
   for i, v in pairs(key) do
     key[i] = v + dt
   end
@@ -41,11 +44,11 @@ function Wayward:update(dt)
 end
 
 function Wayward:draw()
-  Graphics.start()
+  Graphics:start()
   if #self.stateStack > 0 then
     self.stateStack[#self.stateStack]:draw()
   end
-  Graphics.stop(true)
+  Graphics:stop(true)
 end
 
 function Wayward:keypressed(key, unicode)
@@ -120,14 +123,20 @@ function TestState:draw()
 
   -- debug
   local pl = self.player
-  Graphics.text( 0, 0, WHITE, string.format("PLY P(%.2f,%.2f) X(%.2f,%.2f) T(%i,%i)", pl.x, pl.y, pl.xexcess, pl.yexcess, pl.xtarget, pl.ytarget) )
+  Graphics:text( 0, 0, WHITE, string.format("PLY P(%.2f,%.2f) X(%.2f,%.2f) T(%i,%i)", pl.x, pl.y, pl.xexcess, pl.yexcess, pl.xtarget, pl.ytarget) )
   local vx, vy = cam:screenTranslate( pl.x, pl.y )
-  Graphics.text( 0, 8, WHITE, string.format("CAM P(%.2f,Y%.2f) S(X%.2f,Y%.2f)", cam.x, cam.y, vx, vy) )
+  Graphics:text( 0, 8, WHITE, string.format("CAM P(%.2f,Y%.2f) S(X%.2f,Y%.2f)", cam.x, cam.y, vx, vy) )
 end
 
 function TestState:update(dt)
   local key = Waygame.keypress
-  if key["escape"]==1 then Waygame:popState() end
+  if key["escape"]==1 then
+    collectgarbage()
+    local count = 0
+    for i, v in pairs(Sprite.weakSpritesTable) do count = count + 1 end
+    print( "Living sprites", count, "Ammo", Waygame.ammo )
+    Waygame:popState()
+  end
   if key["p"]==1 then Waygame:pushState( PauseState() ) end
   self.player:handleKeypress(key["up"], key["down"], key["left"], key["right"])
   self.map:update(dt)

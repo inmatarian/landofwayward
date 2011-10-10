@@ -38,3 +38,7 @@ function Player:update(dt)
   self.frame = self.animator:current()
 end
 
+function Player:touch( other )
+  other:handleTouchedByPlayer( self )
+end
+
