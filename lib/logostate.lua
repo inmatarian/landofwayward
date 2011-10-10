@@ -28,9 +28,9 @@ function LogoState:init()
 end
 
 function LogoState:update(dt)
-  if coroutine.status(self.co) ~= "dead" then
+  if self.co and coroutine.status(self.co) ~= "dead" then
     local err, mesg = coroutine.resume(self.co, dt)
-    if err == false then error(msg) end
+    if err == false then error(mesg) end
   else
     Waygame:popState()
   end
@@ -40,6 +40,10 @@ function LogoState:wait( secs )
   local dt = 0
   while dt < secs do
     dt = dt + coroutine.yield()
+    if Waygame.keypress["return"]==1 or Waygame.keypress["escape"]==1 then
+      self.co = nil
+      coroutine.yield()
+    end
   end
 end
 
