@@ -17,13 +17,28 @@ function Player:init( x, y )
   self.animator = Animator( Player.animFrames )
 end
 
-function Player:handleKeypress( u, d, l, r )
-  local dir, least = "I", 9999999
-  if u > 0 and u < least then dir, least = "N", u end
-  if d > 0 and d < least then dir, least = "S", d end
-  if l > 0 and l < least then dir, least = "W", l end
-  if r > 0 and r < least then dir, least = "E", r end
-  if dir ~= "I" then self:move( dir ) end
+function Player:handleKeypress(key)
+  local u, d, l, r = key["up"], key["down"], key["left"], key["right"]
+
+  if key[" "] >= 1 then
+    local dir = "I"
+    if u == 1 then dir = "N" end
+    if d == 1 then dir = "S" end
+    if l == 1 then dir = "W" end
+    if r == 1 then dir = "E" end
+    if dir ~= "I" then
+      self:shoot( dir )
+    end
+  else
+    local dir, least = "I", 9999999
+    if u > 0 and u < least then dir, least = "N", u end
+    if d > 0 and d < least then dir, least = "S", d end
+    if l > 0 and l < least then dir, least = "W", l end
+    if r > 0 and r < least then dir, least = "E", r end
+    if dir ~= "I" then
+      self:move( dir )
+    end
+  end
 end
 
 function Player:move( dir )
@@ -32,10 +47,24 @@ function Player:move( dir )
   self.animator:setPattern(dir)
 end
 
+function Player:shoot( dir )
+  self.animator:setPattern(dir)
+  if Waygame.ammo >= 1 then
+    Waygame.ammo = Waygame.ammo - 1
+    local x, y = self.x, self.y
+    if dir == "N" then y = y - 1
+    elseif dir == "S" then y = y + 1
+    elseif dir == "W" then x = x - 1
+    elseif dir == "E" then x = x + 1 end
+    self.map:addSprite( Bullet( x, y, dir ) )
+  end
+end
+
 function Player:update(dt)
   Player:super().update(self, dt)
   self.animator:update(dt)
   self.frame = self.animator:current()
+  self:handleKeypress(Waygame.keypress)
 end
 
 function Player:touch( other )

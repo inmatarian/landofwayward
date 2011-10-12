@@ -9,8 +9,7 @@ function Ammo:init( x, y )
 end
 
 function Ammo:handleTouchedByPlayer( player )
-  Waygame.ammo = Waygame.ammo + 1
+  Waygame.ammoMax = Waygame.ammoMax + 1
   self.map:removeSprite( self )
 end
-
 

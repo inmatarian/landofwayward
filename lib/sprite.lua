@@ -2,6 +2,7 @@
 Sprite = class {
   speed = 5;
   moving = false;
+  tangible = true;
   xexcess = 0;
   yexcess = 0;
   xtarget = 0;
@@ -11,7 +12,6 @@ Sprite = class {
 }
 
 function Sprite:init( x, y, w, h )
-  print("Sprint.init", self, x, y, w, h )
   self.x = x or 0
   self.y = y or 0
   self.w = w or 1
@@ -73,7 +73,9 @@ function Sprite:updatePosition(dt)
   end
 
   self.x, self.y = nx, ny
-  self.map:updateSpatialHash( self, oldx, oldy, self.w, self.h )
+  if self.tangible then
+    self.map:updateSpatialHash( self, oldx, oldy, self.w, self.h )
+  end
 end
 
 function Sprite:setPos( newx, newy )
@@ -96,7 +98,7 @@ function Sprite:move( dir )
   end
 
   local ent = self.map:getEntity( xt, yt )
-  if ent == EntityCode.BLOCK then return end
+  if ent == EntityCode.BLOCK then self:thud( dir ) return end
   local other = self.map:getSpriteAt( xt, yt )
   if other then self:touch( other ) return end
 
@@ -110,12 +112,18 @@ function Sprite:touch( other )
   -- virtual
 end
 
+function Sprite:thud( dir )
+  -- virtual
+end
+
 function Sprite:handleTouchedByPlayer( player )
   -- virtual
 end
 
 function Sprite:setMap( map )
   self.map = map
-  self.map:updateSpatialHash( self )
+  if self.tangible then
+    self.map:updateSpatialHash( self )
+  end
 end
 
