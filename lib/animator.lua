@@ -1,9 +1,12 @@
 
 Animator = class()
+Animator.FREEZE = "freeze"
 
 function Animator:init( frames )
   self.frames = frames or {}
-  self.pattern = nil
+  if frames["default"] then
+    self.pattern = "default"
+  end
   self.index = 1
   self.clock = 0
 end
@@ -20,10 +23,16 @@ function Animator:setPattern( name )
   end
 end
 
+function Animator:resetPattern( name )
+  self.pattern = nil
+  self:setPattern(name)
+end
+
 function Animator:update(dt)
   if not self.pattern then return end
   self.clock = self.clock + dt
   local length = self.frames[self.pattern][self.index][2]
+  if length == self.FREEZE then return end
   while self.clock >= length do
     self.clock = self.clock - length
     self.index = self.index + 1

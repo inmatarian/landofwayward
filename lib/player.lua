@@ -2,11 +2,21 @@
 Player = Sprite:subclass()
 do
   local LENGTH = 0.25
+  local SHOTLEN = 0.1
+  local FREEZE = Animator.FREEZE
   Player.animFrames = {
     N = { { 1, LENGTH }, { 2, LENGTH } },
     S = { { 3, LENGTH }, { 4, LENGTH } },
     W = { { 5, LENGTH }, { 6, LENGTH } },
-    E = { { 7, LENGTH }, { 8, LENGTH } }
+    E = { { 7, LENGTH }, { 8, LENGTH } },
+    NHold = { { 1, FREEZE } },
+    SHold = { { 3, FREEZE } },
+    WHold = { { 5, FREEZE } },
+    EHold = { { 7, FREEZE } },
+    NShoot = { { 2, SHOTLEN }, { 1, FREEZE } },
+    SShoot = { { 4, SHOTLEN }, { 3, FREEZE } },
+    WShoot = { { 6, SHOTLEN }, { 5, FREEZE } },
+    EShoot = { { 8, SHOTLEN }, { 7, FREEZE } },
   }
 end
 
@@ -28,6 +38,8 @@ function Player:handleKeypress(key)
     if r == 1 then dir = "E" end
     if dir ~= "I" then
       self:shoot( dir )
+    elseif key[" "] == 1 then
+      self.animator:setPattern(self.lastdir.."Hold")
     end
   else
     local dir, least = "I", 9999999
@@ -37,6 +49,8 @@ function Player:handleKeypress(key)
     if r > 0 and r < least then dir, least = "E", r end
     if dir ~= "I" then
       self:move( dir )
+    else
+      self.animator:setPattern(self.lastdir)
     end
   end
 end
@@ -48,14 +62,15 @@ function Player:move( dir )
 end
 
 function Player:shoot( dir )
-  self.animator:setPattern(dir)
+  self.animator:resetPattern(dir.."Shoot")
+  self.lastdir = dir
   if Waygame.ammo >= 1 then
     Waygame.ammo = Waygame.ammo - 1
     local x, y = self.x, self.y
-    if dir == "N" then y = y - 1
+--[[if dir == "N" then y = y - 1
     elseif dir == "S" then y = y + 1
     elseif dir == "W" then x = x - 1
-    elseif dir == "E" then x = x + 1 end
+    elseif dir == "E" then x = x + 1 end]]
     self.map:addSprite( Bullet( x, y, dir ) )
   end
 end

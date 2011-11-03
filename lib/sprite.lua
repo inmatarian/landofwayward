@@ -7,7 +7,7 @@ Sprite = class {
   yexcess = 0;
   xtarget = 0;
   ytarget = 0;
-  lastdir = "I";
+  lastdir = "S";
   weakSpritesTable = setmetatable( {}, {__mode="kv"} )
 }
 
@@ -31,8 +31,6 @@ function Sprite:draw( camera )
   if x < -w or y < -h or x > Graphics.gameWidth or y > Graphics.gameHeight then return end
   if self.frame > 0 then
     Graphics:drawSprite( x, y, self.frame )
-  else
-    love.graphics.rectangle( "fill", x, y, w, h )
   end
 end
 
@@ -89,18 +87,25 @@ end
 
 function Sprite:move( dir )
   if self.moving then return end
-  local x, y = self:intPos()
-  local xt, yt = x, y
-  if dir == "N" then yt = yt - 1
-  elseif dir == "S" then yt = yt + 1
-  elseif dir == "W" then xt = xt - 1
-  elseif dir == "E" then xt = xt + 1
+  local floor = math.floor
+  local xt, yt = self.x, self.y
+
+  if dir == "N" then yt = floor(yt - 1)
+  elseif dir == "S" then yt = floor(yt + 1)
+  elseif dir == "W" then xt = floor(xt - 1)
+  elseif dir == "E" then xt = floor(xt + 1)
   end
 
   local ent = self.map:getEntity( xt, yt )
-  if ent == EntityCode.BLOCK then self:thud( dir ) return end
+  if ent == EntityCode.BLOCK then
+    self:thud( dir )
+    if self.tangible then return true end
+  end
   local other = self.map:getSpriteAt( xt, yt )
-  if other then self:touch( other ) return end
+  if other and other ~= self then
+    self:touch( other )
+    if self.tangible then return true end
+  end
 
   self.lastdir = dir
   self.xtarget, self.ytarget = xt, yt

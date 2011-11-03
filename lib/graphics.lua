@@ -91,6 +91,7 @@ function Graphics:drawPixel( x, y, r, g, b )
 end
 
 function Graphics:drawTile( x, y, tile )
+  if tile == 0 then end
   local xs, ys = self.xScale, self.yScale
   love.graphics.drawq( self.tilesetImage, self.tiles[tile],
     math.floor(x*ys)/ys, math.floor(y*ys)/ys )
@@ -98,6 +99,7 @@ function Graphics:drawTile( x, y, tile )
 end
 
 function Graphics:drawSprite( x, y, idx )
+  if idx == 0 then end
   local xs, ys = self.xScale, self.yScale
   love.graphics.drawq( self.spriteImage, self.sprites[idx],
     math.floor(x*ys)/ys, math.floor(y*ys)/ys )

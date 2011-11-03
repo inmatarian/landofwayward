@@ -1,6 +1,20 @@
 
 ExplorerState = class()
 
+do
+  local LENGTH = 0.05
+  ExplorerState.ammoFrames = {
+    default = { { SpriteCode.AMMO4, Animator.FREEZE } },
+    newammo = {
+      { SpriteCode.AMMO1, LENGTH },
+      { SpriteCode.AMMO2, LENGTH },
+      { SpriteCode.AMMO4, LENGTH },
+      { SpriteCode.AMMO3, LENGTH },
+      { SpriteCode.AMMO4, Animator.FREEZE },
+    }
+  }
+end
+
 function ExplorerState:init()
   self.map = Map("maps/testboard.tmx")
   local px, py = self.map:locateEntity(EntityCode.SYLVIA)
@@ -10,6 +24,7 @@ function ExplorerState:init()
   self.map:addSprite(self.player)
   self:loadThings()
   self.camera:setBounds( 0, 0, self.map.width, self.map.height )
+  self.ammoAnim = Animator( self.ammoFrames )
 end
 
 function ExplorerState:loadThings()
@@ -46,26 +61,18 @@ end
 function ExplorerState:drawAmmo()
   local amax = Waygame.ammoMax
   if amax == 0 then return end
-  local recover = Waygame.ammoRecover
   local ammo = Waygame.ammo
   local x = (math.floor(Graphics.gameWidth / 2.0)-8)-(8*(amax-1))
   local y = Graphics.gameHeight - 24
 
   local i = 1
-  while i<=ammo do
-    Graphics:drawSprite( x, y, SpriteCode.AMMO4 )
-    i, x = i + 1, x + 16
-  end
-  
-  if i < amax and recover > 4 then
-    recover = (recover-4) * 5
-    local spr
-    if recover > 4 then spr = SpriteCode.AMMO4
-    elseif recover > 3 then spr = SpriteCode.AMMO3
-    elseif recover > 2 then spr = SpriteCode.AMMO4
-    elseif recover > 1 then spr = SpriteCode.AMMO2
-    else spr = SpriteCode.AMMO1 end
-    Graphics:drawSprite( x, y, spr )
+  if ammo > 0 then
+    while i<=(ammo-1) do
+      Graphics:drawSprite( x, y, SpriteCode.AMMO4 )
+      i, x = i + 1, x + 16
+    end
+
+    Graphics:drawSprite( x, y, self.ammoAnim:current() )
     i, x = i + 1, x + 16
   end
 
@@ -93,10 +100,13 @@ end
 function ExplorerState:updateAmmo(dt)
   local W = Waygame
   if W.ammo < W.ammoMax then
-    W.ammoRecover = W.ammoRecover + (dt * 3)
-    if W.ammoRecover >= 5.0 then
-      W.ammoRecover = W.ammoRecover - 5.0
+    W.ammoRecover = W.ammoRecover + dt
+    if W.ammoRecover >= 3.0 then
+      W.ammoRecover = W.ammoRecover - 3.0
       W.ammo = W.ammo + 1
+      self.ammoAnim:resetPattern("newammo")
     end
   end
+  self.ammoAnim:update(dt)
 end
+

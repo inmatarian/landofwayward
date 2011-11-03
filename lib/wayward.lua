@@ -79,15 +79,3 @@ function Wayward:popState()
   table.remove( self.stateStack )
 end
 
-----------------------------------------
-
-PlaceholderState = class()
-function PlaceholderState:init( nextState )
-  self.nextState = nextState
-end
-function PlaceholderState:draw() end
-function PlaceholderState:update(dt)
-  Waygame:popState()
-  Waygame:pushState( self.nextState() )
-end
-
