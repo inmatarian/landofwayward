@@ -1,26 +1,7 @@
 
-----------------------------------------
--- Class loader
-
-Origin = {}
-function Origin.__index( t, k )
-  local f = k:lower()
-  if love.filesystem.isFile(f..".lua") then
-    print( "Require", f )
-    require( f )
-    return rawget(_G, k)
-  elseif love.filesystem.isFile("lib/"..f..".lua") then
-    print( "Require lib", f )
-    require( "lib/"..f )
-    return rawget(_G, k)
-  end
-end
-
-----------------------------------------
+require "lib/init"
 
 function love.run()
-
-  setmetatable( _G, Origin )
 
   local love = love
   local dt = 0
@@ -48,6 +29,7 @@ function love.run()
       local ret
       if evname and game[evname] then ret = game[evname](game, a, b, c) end
       if evname == "quit" and not ret then
+        Waygame:shutdown()
         love.audio.stop()
         return
       end

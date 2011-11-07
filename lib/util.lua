@@ -19,6 +19,10 @@ function Util.randomPull( ... )
   return nil
 end
 
+function Util.randomPick(...)
+  return select( math.random( select('#', ...) ), ... )
+end
+
 function Util.setDefaultValue( tab, val )
   return setmetatable( tab, { __index = function() return val end } )
 end
@@ -77,8 +81,10 @@ do
   Util.xmlCollect = collect
 end
 
-function Util.printr( t, indent ) -- http://richard.warburton.it
-  local indent = indent or ''
+function Util.printr( t, indent) -- http://richard.warburton.it
+  indent = indent or ''
+  if indent:len() > 40 then return end
+  local lines = 0
   for key, value in pairs(t) do
     io.write(indent,'[',tostring(key),']')
     if type(value)=="table" then io.write(':\n'); Util.printr(value,indent..'  ')
@@ -86,6 +92,17 @@ function Util.printr( t, indent ) -- http://richard.warburton.it
       if value:len() > 64 then io.write(' = "',value:sub(1,61),'..."\n')
       else io.write(' = "',value,'"\n') end
     else io.write(' = ',tostring(value),'\n') end
+    lines = lines + 1
+    if lines > 20 then io.write(indent,"..."); break end
   end
+end
+
+function Util.hash(...)
+  local s = select(1, ...)
+  for n = 2, select('#', ...) do
+    local e = select(n, ...)
+    s=s..":"..tostring(e)
+  end
+  return s
 end
 

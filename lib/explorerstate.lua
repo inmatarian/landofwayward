@@ -16,6 +16,7 @@ do
 end
 
 function ExplorerState:init()
+  self.id = "maps/testboard.tmx"
   self.map = Map("maps/testboard.tmx")
   local px, py = self.map:locateEntity(EntityCode.SYLVIA)
   px, py = px or 1, py or 1
@@ -32,15 +33,28 @@ function ExplorerState:loadThings()
     for x = 0, self.map.width do
       local code = self.map:getEntity( x, y )
       local factory = self.entityFactory[code]
-      if factory then self.map:addSprite( factory(self, x, y) ) end
+      if factory then
+        local id = Util.hash( self.id, x, y )
+        if not Waygame.deadItems[id] then
+          self.map:addSprite( factory(self, x, y, id) )
+        end
+      end
     end
   end
 end
 
 do
   local factory = {}
-  factory[EntityCode.AMMO] = function(self, x, y) return Ammo(x, y) end;
-  factory[EntityCode.HEALTH] = function(self, x, y) return Health(x, y) end;
+  factory[EntityCode.AMMO] = function(self, x, y, id) return Ammo(x, y, id) end;
+  factory[EntityCode.HEALTH] = function(self, x, y, id) return Health(x, y, id) end;
+  factory[EntityCode.RUFFIAN] = function(self, x, y, id) return RuffianEnemy(x, y, id) end;
+  factory[EntityCode.TIGER] = function(self, x, y, id) return TigerEnemy(x, y, id) end;
+  factory[EntityCode.SNAKE] = function(self, x, y, id) return SnakeEnemy(x, y, id) end;
+  factory[EntityCode.BEAR] = function(self, x, y, id) return BearEnemy(x, y, id) end;
+  factory[EntityCode.GHOST] = function(self, x, y, id) return GhostEnemy(x, y, id) end;
+  factory[EntityCode.EYE] = function(self, x, y, id) return EyeEnemy(x, y, id) end;
+  factory[EntityCode.DRAGON] = function(self, x, y, id) return DragonEnemy(x, y, id) end;
+  factory[EntityCode.SPIDER] = function(self, x, y, id) return SpiderEnemy(x, y, id) end;
   ExplorerState.entityFactory = factory
 end
 
@@ -100,11 +114,15 @@ end
 function ExplorerState:updateAmmo(dt)
   local W = Waygame
   if W.ammo < W.ammoMax then
-    W.ammoRecover = W.ammoRecover + dt
-    if W.ammoRecover >= 3.0 then
-      W.ammoRecover = W.ammoRecover - 3.0
+    W.ammoRecover = W.ammoRecover + ( dt / 2.5 )
+    if W.ammoRecover >= 1.0 then
       W.ammo = W.ammo + 1
       self.ammoAnim:resetPattern("newammo")
+      if W.ammo < W.ammoMax then
+        W.ammoRecover = W.ammoRecover - 1.0
+      else
+        W.ammoRecover = 0
+      end
     end
   end
   self.ammoAnim:update(dt)

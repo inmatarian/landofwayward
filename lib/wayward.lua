@@ -20,6 +20,14 @@ function Wayward:init()
   self.stateStack = {}
   self:pushState( PlaceholderState( ExplorerState ) )
   self:pushState( LogoState() )
+
+  self.deadItems = {}
+end
+
+function Wayward:shutdown()
+  print("Shutting down...")
+  Util.printr(self)
+  print("#end")
 end
 
 function Wayward:update(dt)

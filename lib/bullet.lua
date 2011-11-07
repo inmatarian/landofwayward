@@ -4,25 +4,12 @@ Bullet = Sprite:subclass {
   tangible = false;
 }
 
-do
-  local LEN = 0.125
-  Bullet.animFrames = {
-    default = { { SpriteCode.PLAYERBULLET1, LEN },
-                { SpriteCode.PLAYERBULLET2, LEN },
-                { SpriteCode.PLAYERBULLET3, LEN },
-                { SpriteCode.PLAYERBULLET4, LEN } },
-    explode = { { SpriteCode.PLAYERBULLETFLASH1, LEN },
-                { SpriteCode.PLAYERBULLETFLASH2, LEN },
-                { 0, Animator.FREEZE } }
-  }
-end
-
-function Bullet:init( x, y, dir )
+function Bullet:init( x, y, dir, bulletType, animator )
   Bullet:superinit( self, x, y, 1, 1 )
   self.frame = 1
   self.dir = dir
-  self.anim = Animator( self.animFrames )
-  self.anim:setPattern("default")
+  self.bulletType = bulletType
+  self.anim = animator
 end
 
 function Bullet:update(dt)

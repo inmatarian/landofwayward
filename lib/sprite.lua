@@ -28,7 +28,9 @@ end
 
 function Sprite:draw( camera )
   local x, y, w, h = camera:screenTranslate( self.x, self.y, self.w, self.h )
-  if x < -w or y < -h or x > Graphics.gameWidth or y > Graphics.gameHeight then return end
+  if x < -w or y < -h or x > Graphics.gameWidth or y > Graphics.gameHeight then
+    return
+  end
   if self.frame > 0 then
     Graphics:drawSprite( x, y, self.frame )
   end

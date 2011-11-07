@@ -67,11 +67,7 @@ function Player:shoot( dir )
   if Waygame.ammo >= 1 then
     Waygame.ammo = Waygame.ammo - 1
     local x, y = self.x, self.y
---[[if dir == "N" then y = y - 1
-    elseif dir == "S" then y = y + 1
-    elseif dir == "W" then x = x - 1
-    elseif dir == "E" then x = x + 1 end]]
-    self.map:addSprite( Bullet( x, y, dir ) )
+    self.map:addSprite( PlayerBullet( x, y, dir ) )
   end
 end
 
