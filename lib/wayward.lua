@@ -4,6 +4,7 @@ Wayward = class {
   ammoRecover = 0,
   ammo = 0,
   health = 100,
+  debug = false
 }
 
 function Wayward:init()
@@ -33,6 +34,7 @@ end
 function Wayward:update(dt)
   local key = self.keypress
   if key["f2"] == 1 then Graphics:saveScreenshot() end
+  if key["f3"] == 1 then self.debug = not self.debug end
   if key["f10"] == 1 then love.event.push('q') end
 
   local scale
@@ -58,7 +60,7 @@ function Wayward:draw()
   if #self.stateStack > 0 then
     self.stateStack[#self.stateStack]:draw()
   end
-  Graphics:stop(true)
+  Graphics:stop(self.debug)
 end
 
 function Wayward:keypressed(key, unicode)

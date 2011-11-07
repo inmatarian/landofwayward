@@ -18,6 +18,18 @@ function Layer:get( x, y )
   return self.data[1 + (y*self.width + x)]
 end
 
+function Layer:draw( camera )
+  local left, top, right, bottom, offx, offy = camera:layerDrawingParameters()
+  for y = top, bottom do
+    for x = left, right do
+      local tile = self:get( x, y )
+      if tile then
+        love.graphics.rectangle("fill", (x-left-offx)*16+1, (y-top-offy)*16+1, 14, 14)
+      end
+    end
+  end
+end
+
 ------------------------------------------------------------------------------
 
 TileLayer = Layer:subclass()
@@ -132,14 +144,15 @@ function Map:draw( camera )
   for _, layer in ipairs( self.layers.below ) do
     layer:draw(camera)
   end
+  if Waygame.debug then
+    self.layers.entity:draw(camera)
+    self.spatialHash:draw(camera)
+  end
   for _, sprite in ipairs( self.sprites ) do
     sprite:draw(camera)
   end
   for _, layer in ipairs( self.layers.above ) do
     layer:draw(camera)
-  end
-  if self.drawEntityLayer then
-    self.layers.entity:draw(camera)
   end
 end
 
@@ -175,8 +188,10 @@ function Map:getEntity( x, y )
 end
 
 function Map:modifySpatialHash( x, y, w, h, value )
-  for sy = y, y+h-0.01 do
-    for sx = x, x+w-0.01 do
+  local f=math.floor
+  local x1, x2, y1, y2 = f(x), f(x+w-0.01), f(y), f(y+h-0.01)
+  for sy = y1, y2 do
+    for sx = x1, x2 do
       self.spatialHash:set( sx, sy, value )
     end
   end

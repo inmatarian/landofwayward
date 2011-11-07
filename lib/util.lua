@@ -81,20 +81,34 @@ do
   Util.xmlCollect = collect
 end
 
-function Util.printr( t, indent) -- http://richard.warburton.it
-  indent = indent or ''
-  if indent:len() > 40 then return end
-  local lines = 0
+local function tprintr(t, indent, loopt)
   for key, value in pairs(t) do
-    io.write(indent,'[',tostring(key),']')
-    if type(value)=="table" then io.write(':\n'); Util.printr(value,indent..'  ')
+    io.write(indent, '[',tostring(key),']')
+    if type(value)=="table" then
+      local mt = getmetatable(value)
+      if type(mt)=="table" and type(mt.__index)=="table" then
+        io.write(' = Object\n')
+      elseif not loopt[value] then
+        loopt[value]=true
+        io.write(':\n')
+        tprintr(value, indent..'  ', loopt)
+      else
+        io.write(': (previously referenced table)\n')
+      end
     elseif type(value)=="string" then
-      if value:len() > 64 then io.write(' = "',value:sub(1,61),'..."\n')
-      else io.write(' = "',value,'"\n') end
-    else io.write(' = ',tostring(value),'\n') end
-    lines = lines + 1
-    if lines > 20 then io.write(indent,"..."); break end
+      if value:len() > 64 then
+        io.write(' = "', value:sub(1,61), '..."\n')
+      else
+        io.write(' = "', value, '"\n')
+      end
+    else
+      io.write(' = ', tostring(value), '\n')
+    end
   end
+end
+
+function Util.printr( t ) -- http://richard.warburton.it
+  tprintr(t, '', {})
 end
 
 function Util.hash(...)

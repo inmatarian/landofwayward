@@ -25,6 +25,7 @@ function Player:init( x, y )
   Player:superinit( self, x, y, 1, 1 )
   self.frame = 1
   self.animator = Animator( Player.animFrames )
+  Waygame.player = self
 end
 
 function Player:handleKeypress(key)
@@ -80,5 +81,11 @@ end
 
 function Player:touch( other )
   other:handleTouchedByPlayer( self )
+end
+
+function Player:isSpriteNearVisible( other )
+  local x, y = self.x, self.y
+  local ox, oy = other.x, other.y
+  return (ox > (x - 12)) and (ox < (x + 12)) and (oy > (y - 9)) and (oy < (y + 9))
 end
 
