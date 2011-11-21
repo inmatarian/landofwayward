@@ -69,6 +69,9 @@ function Player:shoot( dir )
     Waygame.ammo = Waygame.ammo - 1
     local x, y = self.x, self.y
     self.map:addSprite( PlayerBullet( x, y, dir ) )
+    Sound:playsound( Sound.PLAYERSHOOT )
+  else
+    Sound:playsound( Sound.NOAMMO )
   end
 end
 

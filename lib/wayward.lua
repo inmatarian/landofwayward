@@ -14,7 +14,7 @@ function Wayward:init()
 
   math.randomseed( os.time() )
   Graphics:init()
-  Sound.init()
+  Sound:init()
 
   self.keypress = Util.setDefaultValue( {}, 0 );
 
@@ -47,7 +47,7 @@ function Wayward:update(dt)
     self.stateStack[#self.stateStack]:update(dt)
   end
 
-  Sound.update(dt)
+  Sound:update(dt)
   Graphics:update(dt)
   for i, v in pairs(key) do
     key[i] = v + dt
