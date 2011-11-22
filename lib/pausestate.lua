@@ -11,7 +11,7 @@ end
 
 function PauseState:update(dt)
   self.text:update(dt)
-  if Waygame.keypress["escape"]==1 then
+  if Waygame:isKey("return", "escape") then
     Waygame:popState()
   end
 end

@@ -4,7 +4,9 @@ Wayward = class {
   ammoRecover = 0,
   ammo = 0,
   health = 100,
-  debug = false
+  debug = false,
+  keyDelay = 0.500,
+  keyRate = 0.050
 }
 
 function Wayward:init()
@@ -17,6 +19,7 @@ function Wayward:init()
   Sound:init()
 
   self.keypress = Util.setDefaultValue( {}, 0 );
+  self.keyrepeat = Util.setDefaultValue( {}, 0 );
 
   self.stateStack = {}
   self:pushState( PlaceholderState( TitleState ) )
@@ -32,15 +35,12 @@ function Wayward:shutdown()
 end
 
 function Wayward:update(dt)
-  local key = self.keypress
-  if key["f2"] == 1 then Graphics:saveScreenshot() end
-  if key["f3"] == 1 then self.debug = not self.debug end
-  if key["f10"] == 1 then love.event.push('q') end
+  if self:isKey("f2") then Graphics:saveScreenshot() end
+  if self:isKey("f3") then self.debug = not self.debug end
+  if self:isKey("f10") then love.event.push('q') end
 
   local scale
-  for i = 1, 4 do
-    if key[ "" .. i ] == 1 then scale = i end
-  end
+  for i = 1, 4 do if self:isKey(i) then scale = i end end
   if scale then Graphics:changeScale(scale) end
 
   if #self.stateStack > 0 then
@@ -49,9 +49,7 @@ function Wayward:update(dt)
 
   Sound:update(dt)
   Graphics:update(dt)
-  for i, v in pairs(key) do
-    key[i] = v + dt
-  end
+  self:updateKeys(dt)
   if #self.stateStack == 0 then love.event.push('q') end
 end
 
@@ -65,10 +63,12 @@ end
 
 function Wayward:keypressed(key, unicode)
   self.keypress[key] = 1
+  self.keyrepeat[key] = 1
 end
 
 function Wayward:keyreleased(key, unicode)
   self.keypress[key] = nil
+  self.keyrepeat[key] = nil
 end
 
 function Wayward:focus( focused )
@@ -87,5 +87,42 @@ end
 function Wayward:popState()
   print( "State Machine", state )
   table.remove( self.stateStack )
+end
+
+function Wayward:updateKeys(dt)
+  local keys = self.keypress
+  local repeats = self.keyrepeat
+  for i, v in pairs(repeats) do
+    if v == 1 then
+      repeats[i] = 1 + self.keyDelay
+    elseif keys[i] >= v then
+      repeats[i] = v + self.keyRate
+    end
+  end
+  for i, v in pairs(keys) do
+    keys[i] = v + dt
+  end
+end
+
+-- True if any of the keys is pressed==1
+function Wayward:isKey(...)
+  local key = self.keypress
+  local N = select('#', ...)
+  for i = 1, N do
+    if key[tostring(select(i,...))]==1 then return true end
+  end
+  return false
+end
+
+-- Takes into account key repeats on any key
+function Wayward:isPressed(...)
+  local key, repeats = self.keypress, self.keyrepeat
+  local N = select('#', ...)
+  for i = 1, N do
+    local k = tostring(select(i,...))
+    local a, b = key[k], repeats[k]
+    if (a >= 1) and (a >= b) then return true end
+  end
+  return false
 end
 

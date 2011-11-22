@@ -29,9 +29,9 @@ function Player:init( x, y )
 end
 
 function Player:handleKeypress(key)
-  local u, d, l, r = key["up"], key["down"], key["left"], key["right"]
+  local u, d, l, r, sp = key["up"], key["down"], key["left"], key["right"], key[" "]
 
-  if key[" "] >= 1 then
+  if sp >= 1 then
     local dir = "I"
     if u == 1 then dir = "N" end
     if d == 1 then dir = "S" end
@@ -39,7 +39,7 @@ function Player:handleKeypress(key)
     if r == 1 then dir = "E" end
     if dir ~= "I" then
       self:shoot( dir )
-    elseif key[" "] == 1 then
+    elseif sp == 1 then
       self.animator:setPattern(self.lastdir.."Hold")
     end
   else

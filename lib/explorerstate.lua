@@ -98,18 +98,19 @@ function ExplorerState:drawAmmo()
 end
 
 function ExplorerState:update(dt)
-  local key = Waygame.keypress
-  if key["escape"]==1 then
+  if Waygame:isKey("escape") then
     collectgarbage()
     local count = 0
     for i, v in pairs(Sprite.weakSpritesTable) do count = count + 1 end
     print( "Living sprites", count, "Ammo", Waygame.ammo )
     Waygame:popState()
+  elseif Waygame:isKey("p") then
+    Waygame:pushState( PauseState() )
+  else
+    self.map:update(dt)
+    self.camera:update(dt)
+    self:updateAmmo(dt)
   end
-  if key["p"]==1 then Waygame:pushState( PauseState() ) end
-  self.map:update(dt)
-  self.camera:update(dt)
-  self:updateAmmo(dt)
 end
 
 function ExplorerState:updateAmmo(dt)

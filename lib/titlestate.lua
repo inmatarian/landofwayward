@@ -27,21 +27,26 @@ function TitleState:draw()
   local x, y = X, Y
   local i, N = self.scroll, self.scroll + 7
   while i < N and i <= #self.currentMenu do
-    Graphics:text( x, y, WHITE, self.currentMenu[i] )
-    y, i = y + 12, i + 1
+    local option = self.currentMenu[i]
+    Graphics:text( x, y, WHITE, option )
+    if self.currentMenu == self.SOUNDTESTMENU and SoundEffect[option] then
+      Graphics:text( x+12, y+8, GRAY, SoundEffect[option] )
+    end
+    y, i = y + 16, i + 1
   end
-  love.graphics.rectangle("fill", X-8, Y+((self.option-self.scroll)*12), 7, 7)
+  love.graphics.setColor(WHITE)
+  love.graphics.rectangle("fill", X-8, 2+Y+((self.option-self.scroll)*16), 7, 7)
 end
 
 function TitleState:update(dt)
   local move = 0
 
-  if Waygame.keypress["up"]==1 then move = -1
-  elseif Waygame.keypress["down"]==1 then move = 1
-  elseif Waygame.keypress["pageup"]==1 then move = -6
-  elseif Waygame.keypress["pagedown"]==1 then move = 6
-  elseif Waygame.keypress["home"]==1 then move = -9001
-  elseif Waygame.keypress["end"]==1 then move = 9001
+  if Waygame:isPressed("up") then move = -1
+  elseif Waygame:isPressed("down") then move = 1
+  elseif Waygame:isPressed("pageup") then move = -6
+  elseif Waygame:isPressed("pagedown") then move = 6
+  elseif Waygame:isKey("home") then move = -9001
+  elseif Waygame:isKey("end") then move = 9001
   end
 
   if move ~= 0 then
@@ -58,9 +63,9 @@ function TitleState:update(dt)
     if self.scroll < 1 then self.scroll = 1 end
   else
     local selection
-    if Waygame.keypress["escape"]==1 then
+    if Waygame:isKey("escape") then
       selection = "_escape"
-    elseif Waygame.keypress["return"]==1 then
+    elseif Waygame:isKey("return") then
       selection = self.currentMenu[self.option]
     end
     if selection then

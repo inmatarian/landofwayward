@@ -1,5 +1,6 @@
 
 SoundEffect = Util.strict {
+  MENU = "+g-ege-ege";
   GEM = "5c-gec-gec";
   COIN = "6a#a#zx";
   HEALTH = "cge-zcge";
@@ -26,8 +27,7 @@ SoundEffect = Util.strict {
 
 -- -- --
 
---[===[
-songlist = {
+local mzxSongList = {
   "5c-gec-gec"; -- Gem
   "5c-gec-gec"; -- Magic Gem
   "cge-zcge"; -- Health
@@ -77,10 +77,34 @@ songlist = {
   "z0ca#f+d#cf#"; -- 46-Dragon fire
   "cg+c-eda+d-f#eb+e-g#"; -- 47-Scroll/sign
   "1c+c+c+c+c"; -- 48-Goop
-  "q0a1a2a3a4a5a6a";
-  "q0d#1d#2d#3d#4d#5d#6d#";
-  "iaxiaxiaxiaxiaxiaxiaxiax";
-  "2Icdefgab+cdefgab+cdefgab";
 }
-]===]
+
+local zztSongList = {
+  "tcf+cf+c"; -- BombSet
+  "scdefg"; -- Duplicator
+  "tc-c+d-d+e-e+f-f+g-g"; -- Scroll
+  "tcegc#fg#df#ad#ga#eg#+c"; -- Passageway
+  "t--dc"; -- Inviswall
+  "t--f"; -- Push
+  "t--gc"; -- locked door
+  "t+c+c"; -- Water
+  "s.-cd#e"; -- Energizer On
+  "s.-f+f-fd#c+c-de"; -- Energizer Song
+  "s.-c-a#gf#fd#c"; --  Energizer End
+  "t+cegcegceg+sc"; -- Ket
+  "tcgbcgb+ic"; -- Door
+  "t+c-gec"; -- Gem
+  "tcc#d"; -- Ammo
+  "tcase"; -- Torch
+  "t+c-c-c"; -- Ammo
+  "t--ct+cd#"; -- Ouch
+}
+
+for i, v in ipairs( mzxSongList ) do
+  SoundEffect[string.format("MZX-%02i", i)] = v
+end
+
+for i, v in ipairs( zztSongList ) do
+  SoundEffect[string.format("ZZT-%02i", i)] = v
+end
 
