@@ -19,7 +19,7 @@ function Wayward:init()
   self.keypress = Util.setDefaultValue( {}, 0 );
 
   self.stateStack = {}
-  self:pushState( PlaceholderState( ExplorerState ) )
+  self:pushState( PlaceholderState( TitleState ) )
   self:pushState( LogoState() )
 
   self.deadItems = {}
