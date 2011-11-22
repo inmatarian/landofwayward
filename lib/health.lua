@@ -1,5 +1,8 @@
 
-Health = CollectibleItem:subclass()
+Health = CollectibleItem:subclass {
+  sound = SoundEffect.HEALTH,
+  quantity = 10
+}
 
 local ANIMLEN = Health.ANIMLEN
 Health.animFrames = { default={{231, ANIMLEN}, {232, ANIMLEN}} }
@@ -9,8 +12,7 @@ function Health:init( x, y, id )
 end
 
 function Health:handleTouchedByPlayer( player )
-  Waygame.health = Waygame.health + 10
-  if Waygame.health > 100 then Waygame.health = 100 end
+  Waygame.health = math.min( Waygame.health + self.quantity, 100 )
   Health:super().handleTouchedByPlayer(self, player)
 end
 

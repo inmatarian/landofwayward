@@ -9,11 +9,13 @@ function Layer:init( width, height, default )
 end
 
 function Layer:set( x, y, v )
+  x, y = math.floor(x), math.floor(y)
   if x < 0 or y < 0 or x >= self.width or y >= self.height then return end
   self.data[1 +(y*self.width + x)] = v
 end
 
 function Layer:get( x, y )
+  x, y = math.floor(x), math.floor(y)
   if x < 0 or y < 0 or x >= self.width or y >= self.height then return self.default end
   return self.data[1 + (y*self.width + x)]
 end
@@ -167,7 +169,9 @@ function Map:removeSprite( sprite )
       table.remove( self.sprites, i )
     end
   end
-  self:modifySpatialHash(sprite.x, sprite.y, sprite.w, sprite.h, nil)
+  if sprite.tangible then
+    self:modifySpatialHash(sprite.x, sprite.y, sprite.w, sprite.h, nil)
+  end
 end
 
 function Map:update(dt)

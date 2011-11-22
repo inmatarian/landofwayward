@@ -118,6 +118,7 @@ end
 
 function Sound:playsound( song )
   if self.source then self.source:stop() end
+  if type(song)~="string" then error("BAD SONG "..type(song)) end
 
   local s = song.."ZX"
 
