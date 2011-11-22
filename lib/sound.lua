@@ -81,6 +81,8 @@ local function addSongNote( song, c, cn )
   local rate = song.rate
   local N = math.ceil(len * rate)
   local mod = (cn=="#") and 1 or ( (cn=="$") and -1 or 0 )
+  local idx = song.idx
+  local s = song.samples
   local key
   if c == "A" then key = (song.oct*12) + 13 + mod
   elseif c == "B" then key = (song.oct*12) + 15
@@ -90,12 +92,14 @@ local function addSongNote( song, c, cn )
   elseif c == "F" then key = (song.oct*12) + 9 + mod
   elseif c == "G" then key = (song.oct*12) + 11 + mod
   else
-    song.idx = song.idx + N
+    for i = 1, N do
+      s:setSample( idx, 0 )
+      idx = idx + 1
+    end
+    song.idx = idx
     return
   end
   local freq = pianofreq( key )
-  local idx = song.idx
-  local s = song.samples
   local phase = 0
   local sample
   for i = 1, N do
@@ -112,8 +116,10 @@ local function dummyAddNote( song, c, cn )
   song.idx = song.idx + N
 end
 
-function Sound:playsound( s )
+function Sound:playsound( song )
   if self.source then self.source:stop() end
+
+  local s = song.."ZX"
 
   local proto = { dur = self.bpm/8, oct=3, idx=0, rate=self.rate, bpm=self.bpm }
   proto.__index = proto
