@@ -103,7 +103,7 @@ function Sprite:move( dir )
     self:thud( dir )
     if self.tangible then return true end
   end
-  local other = self.map:getSpriteAt( xt, yt )
+  local other = self:testCollisionAt( xt, yt )
   if other and other ~= self then
     self:touch( other )
     if self.tangible then return true end
@@ -113,6 +113,24 @@ function Sprite:move( dir )
   self.xtarget, self.ytarget = xt, yt
   self.xexcess, self.yexcess = 0, 0
   self.moving = true
+end
+
+function Sprite:testCollisionAt( x, y )
+  for yt = y-1, y+1 do
+    for xt = x-1, x+1 do
+      local other = self.map:getSpriteAt( xt, yt )
+      if other and other ~= self then
+        if Util.rectOverlaps( x, y, self.w, self.h,
+                              other.x, other.y, other.w, other.h )
+        then
+          return other
+        end
+      end
+    end
+  end
+end
+
+function Sprite:overlaps( other )
 end
 
 function Sprite:touch( other )

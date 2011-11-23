@@ -29,19 +29,19 @@ end
 
 function Bullet:thud( dir )
   if self.dieSoon then return end
-  self:prepareToDie()
+  self:prepareToDie( 0.0, 0.0 )
 end
 
 function Bullet:touch( other )
   if self.dieSoon then return end
   -- hurt enemies, or player? who knows?!
-  self:prepareToDie()
+  self:prepareToDie( 0.4, 0.25 )
 end
 
-function Bullet:prepareToDie()
+function Bullet:prepareToDie( time, speed )
   if self.dieSoon then return end
-  self.dieSoon = 0.4
-  self.speed = self.speed * 0.5
+  self.dieSoon = time
+  self.speed = self.speed * speed
   self.anim:setPattern("explode")
 end
 
