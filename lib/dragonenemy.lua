@@ -15,9 +15,16 @@ function DragonEnemy:init( x, y, id )
 end
 
 function DragonEnemy:run()
+  local player = Waygame.player
   while true do
-    self:wait( 2.0 )
-    self:move( Util.randomPick('N', 'S', 'W', 'E') )
+    self:wait( 1.0 )
+    local p = PathFinder.getPath( self.x, self.y, player.x, player.y, self.map )
+    if p then
+      for c in p:gmatch(".") do
+        self:move(c)
+        self:wait( 0.25 )
+      end
+    end
   end
 end
 
