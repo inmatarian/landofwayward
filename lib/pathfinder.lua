@@ -20,50 +20,21 @@ local function lochash(x, y)
   return (y * 1000 + x)
 end
 
-local function Node(x, y, id, parentid, g, h, d, open, closed)
-  return { id=id, parentid=parentid, x=x, y=y, f=g+h, g=g, h=h, d=d, open=open or true, closed=closed or false }
-end
-
-local function updateNode( node, newG )
-  node.g, node.f = newG, node.h + newG
-end
-
-local function cmpNodes( a, b )
-  return (a.f > b.f)
-end
-
-local function getBestNode( open )
-  local best
-  for _, node in pairs(open) do
-    if not best or node.f < best.f then best = node end
-  end
-  return best
-end
-
 local function blockedAt(x, y, map)
   local ent = map:getEntity( x, y )
-  return ent == EntityCode.BLOCK
+  if ent == EntityCode.BLOCK then return true end
+  -- local other = map:getSpriteAt( x, y )
+  -- if other then return true end
+  return false
 end
 
-local function adjacentLocations( x, y, map )
-  local list = {}
-  if not blockedAt(x-1, y, map) then insert(list, {x-1, y, 'W'}) end
-  if not blockedAt(x+1, y, map) then insert(list, {x+1, y, 'E'}) end
-  if not blockedAt(x, y-1, map) then insert(list, {x, y-1, 'N'}) end
-  if not blockedAt(x, y+1, map) then insert(list, {x, y+1, 'S'}) end
-  return list
-end
-
-local function buildPath( target, lookup )
+local function buildPath( target, parent, dir )
   local backpath = {}
-  local id, last
   while target do
-    insert(backpath, target.d)
-    id = target.parentid
-    if id then target = lookup[id] else target = nil end
+    insert(backpath, dir[target])
+    target = parent[target]
   end
   local N = #backpath
-  if backpath[#backpath]=="I" then remove(backpath); N = N - 1 end
   local m = floor(N/2)
   for i = 1, m do
     backpath[i], backpath[N-i+1] = backpath[N-i+1], backpath[i]
@@ -71,46 +42,67 @@ local function buildPath( target, lookup )
   return concat(backpath)
 end
 
+local function sortPriorityQueue( q, f )
+  table.sort(q, function( a, b )
+    return (f[a] > f[b])
+  end)
+end
+
 function PathFinder.getPath( sx, sy, tx, ty, map )
   sx, sy, tx, ty = floor(sx), floor(sy), floor(tx), floor(ty)
   local startID, targetID = lochash(sx, sy), lochash(tx, ty)
-  local originalDist = dist(sx, sy, sx, sy, tx, ty)
-  local startNode = Node(sx, sy, startID, nil, 0, originalDist, "I")
-  local cap = originalDist * 5
-  local open, lookup = {}, {}
+  local startDist = dist(sx, sy, sx, sy, tx, ty)
+  local cap = startDist * 5
+  local known, closed, f, g, h, x, y = {}, {}, {}, {}, {}, {}, {}
+  local parent, dir = {}, {}
+  local openqueue = {}
   local opennodes, nodecount = 1, 0
-  open[startID] = startNode
-  lookup[startID] = startNode
+  local adjlist = {{0, -1, 'N'}, {0, 1, 'S'}, {-1, 0, 'W'}, {1, 0, 'E'}}
 
-  while opennodes >= 1 do
-    local bestNode = getBestNode(open)
-    nodecount, opennodes = nodecount + 1, opennodes - 1
-    open[bestNode.id] = nil
-    if bestNode.id == targetID then
-      return buildPath(bestNode, lookup)
+  known[startID], x[startID], y[startID] = true, sx, sy
+  g[startID], h[startID], f[startID] = 0, startDist, startDist
+  openqueue[1] = startID
+
+  while opennodes > 0 do
+    opennodes, nodecount = opennodes - 1, nodecount + 1
+    local bestID = remove( openqueue )
+    if bestID == targetID then
+      return buildPath(bestID, parent, dir)
     end
-    bestNode.closed, bestNode.open = true, false
-    local g = bestNode.g + 1
-    for _, v in pairs( adjacentLocations( bestNode.x, bestNode.y, map ) ) do
-      local x, y, dir = v[1], v[2], v[3]
-      local id = lochash(x, y)
-      local node = lookup[id]
-      if not node then
-        node = Node(x, y, id, bestNode.id, g, dist(sx, sy, x, y, tx, ty), dir)
-        lookup[id] = node
-        open[id] = node
-        opennodes = opennodes + 1
-      elseif node.open and (g < node.g) then
-        node.parentid = bestNode.id
-        node.g = g
-        node.f = node.h + g
-        node.d = dir
-      end
-      if node.f > cap then
-        node.closed, node.open = true, false
+    local qchanges = false
+    local wasClosed = closed[bestID]
+    closed[bestID] = true
+    if (not wasClosed) and (g[bestID] < cap) then
+      local bestX, bestY = x[bestID], y[bestID]
+      local nextG = g[bestID] + 1
+      for _, v in ipairs( adjlist ) do
+        local nx, ny, nd = bestX+v[1], bestY+v[2], v[3]
+        local id = lochash(nx, ny)
+        if not closed[id] then
+          if not known[id] then
+            if blockedAt( nx, ny, map ) then
+              known[id], closed[id] = true, true
+            else
+              opennodes = opennodes + 1
+              known[id] = true
+              x[id], y[id] = nx, ny
+              g[id], h[id] = nextG, dist(sx, sy, nx, ny, tx, ty)
+              f[id] = g[id] + h[id]
+              parent[id], dir[id] = bestID, nd
+              insert(openqueue, id)
+              qchanges = true
+            end
+          elseif nextG < g[id] then
+            parent[id], dir[id] = bestID, nd
+            g[id], f[id] = nextG, h[id] + nextG
+            qchanges = true
+          end
+        end
       end
     end
+    if qchanges then sortPriorityQueue( openqueue, f ) end
   end
+  print( "Unable to find path after search", nodecount )
   return nil
 end
 

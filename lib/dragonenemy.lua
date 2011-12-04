@@ -19,6 +19,7 @@ function DragonEnemy:run()
   while true do
     self:wait( 1.0 )
     local p = PathFinder.getPath( self.x, self.y, player.x, player.y, self.map )
+    print( "Dragon id following path", self.id, p )
     if p then
       for c in p:gmatch(".") do
         self:move(c)

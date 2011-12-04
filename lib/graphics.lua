@@ -47,7 +47,8 @@ end
 function Graphics:stop( outputDebug )
   if outputDebug then
     self:text( 8, 224, WHITE,
-      string.format("T:%i S:%i FPS:%i", self.tilesDrawn, self.spritesDrawn, self.fps) )
+      string.format("T:%i S:%i FPS:%i MEM:%ik",
+        self.tilesDrawn, self.spritesDrawn, self.fps, collectgarbage("count") ) )
   end
 end
 
@@ -109,7 +110,8 @@ end
 function Graphics:saveScreenshot()
   local screen = love.graphics.newScreenshot()
   local filedata = love.image.newEncodedImageData(screen, "bmp")
-  love.filesystem.write( "screenshot.bmp", filedata)
+  local name = string.format("screenshot-%s.bmp", os.date("%Y%m%d-%H%M%S"))
+  love.filesystem.write( name, filedata )
 end
 
 function Graphics:changeScale( size )
