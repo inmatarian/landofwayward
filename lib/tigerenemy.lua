@@ -15,9 +15,21 @@ function TigerEnemy:init( x, y, id )
 end
 
 function TigerEnemy:run()
+  print("Tiger activated", self.id)
   while true do
-    self:wait( 2.0 )
-    self:move( Util.randomPick('N', 'S', 'W', 'E') )
+    local dist = self:distanceToPlayer()
+    if dist >= 40 then
+      self:wait( 1.0 )
+    else
+      if math.random( 0, 1 ) == 0 then
+        self:move( "IR" )
+      else
+        self:move( "IT" )
+      end
+      if dist < 15 and math.random(0, 5) == 0 then
+        -- shoot
+      end
+    end
   end
 end
 

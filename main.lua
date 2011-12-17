@@ -1,7 +1,33 @@
 
 require "lib/init"
 
+local Runaway = {}
+
+function Runaway.init()
+  Runaway.reset()
+  debug.sethook( Runaway.hook, "l" )
+end
+
+function Runaway.reset()
+  Runaway.lines = 0
+  Runaway.warning = 100000
+end
+
+function Runaway.hook( event )
+  if event == "line" then Runaway.lines = Runaway.lines + 1 end
+  if Runaway.lines >= Runaway.warning then
+    print( "Script running away, executed:", debuglines )
+    Runaway.warning = Runaway.warning * 5
+  end
+  if Runaway.lines >= 1000000 then
+    error( "Runaway script" )
+  end
+end
+
+------------------------------------------------------------
+
 function love.run()
+  Runaway.init()
 
   local love = love
   local dt = 0
@@ -15,6 +41,7 @@ function love.run()
   local game = Wayward()
 
   while true do
+    Runaway.reset()
     love.timer.step()
     dt = love.timer.getDelta()
     if dt > 0.1 then dt = 0.1 end

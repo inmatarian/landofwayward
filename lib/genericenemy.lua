@@ -1,6 +1,8 @@
 
-GenericEnemy = Sprite:subclass()
-GenericEnemy.ANIMLEN = 0.5
+GenericEnemy = Sprite:subclass {
+  ANIMLEN = 0.5,
+  hits = 1
+}
 
 function GenericEnemy:init( x, y, id, animator )
   GenericEnemy:superinit( self, x, y, 1, 1 )
@@ -40,11 +42,46 @@ function GenericEnemy:wait( secs )
   end
 end
 
-function GenericEnemy:move( dir )
+function GenericEnemy:move( dirs )
   if self.moving then return end
-  GenericEnemy:super().move(self, dir)
-  while self.moving do
-    coroutine.yield()
+  local waiting = 1.0 / self.speed
+  for mv, count in dirs:gmatch("(%S)(%d*)") do
+    local d = self:translateDir(mv)
+    count = (count:len() > 0) and tonumber(count) or 1
+    repeat
+      if d == "I" then
+        self:wait( waiting )
+      elseif d == "H" then
+        self.jump = 4
+        self:wait( 0.5 * waiting )
+        self.jump = 0
+        self:wait( 0.5 * waiting )
+      else
+        GenericEnemy:super().move(self, d)
+        self:wait( waiting )
+        while self.moving do
+          coroutine.yield()
+        end
+      end
+      count = count - 1
+    until count < 1
+  end
+end
+
+function GenericEnemy:distanceTo( other )
+  return math.abs(self.x - other.x) + math.abs(self.y - other.y)
+end
+
+function GenericEnemy:distanceToPlayer()
+  return self:distanceTo( Waygame.player )
+end
+
+function GenericEnemy:handleShotByPlayer()
+  Sound:playsound( SoundEffect.ENEMYHURT )
+  if self.hits > 0 then self.hits = self.hits - 1 end
+  if self.hits <= 0 then
+    self.map:removeSprite( self )
+    Waygame:killItem(self.id)
   end
 end
 

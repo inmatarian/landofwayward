@@ -34,7 +34,11 @@ end
 
 function Bullet:touch( other )
   if self.dieSoon then return end
-  -- hurt enemies, or player? who knows?!
+  if self.bulletType == "player" then
+    other:handleShotByPlayer()
+  else
+    other:handleShotByEnemy()
+  end
   self:prepareToDie( 0.4, 0.25 )
 end
 

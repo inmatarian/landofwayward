@@ -15,9 +15,13 @@ function BearEnemy:init( x, y, id )
 end
 
 function BearEnemy:run()
+  print("Bear activated", self.id)
   while true do
-    self:wait( 2.0 )
-    self:move( Util.randomPick('N', 'S', 'W', 'E') )
+    if self:distanceToPlayer() < 12 then
+      self:move( "IT" )
+    else
+      self:wait( 1.0 )
+    end
   end
 end
 

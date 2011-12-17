@@ -17,9 +17,10 @@ function RuffianEnemy:init( x, y, id )
 end
 
 function RuffianEnemy:run()
+  print("Ruffian activated", self.id)
   while true do
     self:wait( 2.0 )
-    self:move( Util.randomPick('N', 'S', 'W', 'E') )
+    self:move( "R4 I2 H4 I2" )
   end
 end
 

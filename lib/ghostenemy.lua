@@ -15,9 +15,17 @@ function GhostEnemy:init( x, y, id )
 end
 
 function GhostEnemy:run()
+  print("Ghost activated", self.id)
   while true do
-    self:wait( 2.0 )
-    self:move( Util.randomPick('N', 'S', 'W', 'E') )
+    local dist = self:distanceToPlayer()
+    if dist >= 40 then
+      self:wait( 1.0 )
+    elseif dist >= 20 then
+      self:move( "IR" )
+    else
+      self:move("I")
+      self:move( Util.randomPick( "T", "R" ) )
+    end
   end
 end
 

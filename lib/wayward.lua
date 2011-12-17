@@ -126,3 +126,11 @@ function Wayward:isPressed(...)
   return false
 end
 
+function Wayward:killItem( id )
+  self.deadItems[id] = true
+end
+
+function Wayward:isItemDead( id )
+  return (self.deadItems[id] == true)
+end
+

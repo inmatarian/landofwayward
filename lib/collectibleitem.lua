@@ -18,7 +18,7 @@ end
 
 function CollectibleItem:handleTouchedByPlayer( player )
   self.map:removeSprite( self )
-  Waygame.deadItems[self.id] = true
+  Waygame:killItem(self.id)
   if self.sound then Sound:playsound( self.sound ) end
 end
 

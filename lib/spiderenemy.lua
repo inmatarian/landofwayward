@@ -1,5 +1,7 @@
 
-SpiderEnemy = GenericEnemy:subclass()
+SpiderEnemy = GenericEnemy:subclass {
+  speed = 6
+}
 
 local ANIMLEN = 0.25
 local CODE = SpriteCode.SPIDER
@@ -15,9 +17,20 @@ function SpiderEnemy:init( x, y, id )
 end
 
 function SpiderEnemy:run()
+  print("Spider activated", self.id)
+  local waiting = true
   while true do
-    self:wait( 2.0 )
-    self:move( Util.randomPick('N', 'S', 'W', 'E') )
+    local dist = self:distanceToPlayer()
+    if dist >= 40 then
+      self:wait( 1.0 )
+    else
+      if math.random( 0, 9 ) == 0 then waiting = not waiting end
+      if waiting then
+        self:move( "I" )
+      else
+        self:move( "R" )
+      end
+    end
   end
 end
 

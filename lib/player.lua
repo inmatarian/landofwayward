@@ -31,6 +31,8 @@ end
 function Player:handleKeypress(key)
   local u, d, l, r, sp = key["up"], key["down"], key["left"], key["right"], key[" "]
 
+  if Waygame:isKey("s") then self.speed = (self.speed == 5) and 10 or 5 end
+
   if sp >= 1 then
     local dir = "I"
     if u == 1 then dir = "N" end
