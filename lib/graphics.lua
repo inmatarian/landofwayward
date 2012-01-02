@@ -39,6 +39,7 @@ end
 
 function Graphics:start()
   love.graphics.scale( Graphics.xScale, Graphics.yScale )
+  love.graphics.setLine( Graphics.xScale, "smooth" )
   love.graphics.setColor( 255, 255, 255 )
   self.tilesDrawn = 0
   self.spritesDrawn = 0
@@ -86,6 +87,10 @@ function Graphics:loadFont(name)
   love.graphics.setFont(self.font)
 end
 
+function Graphics:setColor( color )
+  love.graphics.setColor( color )
+end
+
 function Graphics:drawPixel( x, y, r, g, b )
   love.graphics.setColor( r, g, b )
   love.graphics.rectangle( "fill", x, y, 1, 1 )
@@ -97,6 +102,11 @@ function Graphics:drawTile( x, y, tile )
   love.graphics.drawq( self.tilesetImage, self.tiles[tile],
     math.floor(x*ys)/ys, math.floor(y*ys)/ys )
   self.tilesDrawn = self.tilesDrawn + 1
+end
+
+function Graphics:drawRect( x, y, w, h, color, lined )
+  if color then self:setColor(color) end
+  love.graphics.rectangle( lined and "line" or "fill" , x, y, w, h)
 end
 
 function Graphics:drawSprite( x, y, idx )

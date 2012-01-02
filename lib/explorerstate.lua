@@ -59,7 +59,7 @@ do
 end
 
 function ExplorerState:draw()
-  love.graphics.setColor( WHITE )
+  Graphics:setColor( WHITE )
   local cam = self.camera
   self.map:draw(cam)
 

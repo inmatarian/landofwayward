@@ -29,8 +29,10 @@ function DragonEnemy:run()
       local r = math.random( 0, 15 )
       if r > 14 then
         local p = PathFinder.getPath( self.x, self.y, player.x, player.y, self.map )
-        p = p:sub(0, math.random( 1, p:len() ))
-        self:move( p )
+        if p then
+          p = p:sub(0, math.random( 1, p:len() ))
+          self:move( p )
+        end
       elseif r >= 8 then
         self:move( "IT" )
       elseif r >= 4 then

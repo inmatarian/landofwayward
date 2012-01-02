@@ -34,8 +34,7 @@ function TitleState:draw()
     end
     y, i = y + 16, i + 1
   end
-  love.graphics.setColor(WHITE)
-  love.graphics.rectangle("fill", X-8, 2+Y+((self.option-self.scroll)*16), 7, 7)
+  Graphics:drawRect( X-8, 2+Y+((self.option-self.scroll)*16), 7, 7, WHITE )
 end
 
 function TitleState:update(dt)

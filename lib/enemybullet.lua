@@ -1,9 +1,9 @@
 
-PlayerBullet = Bullet:subclass()
+EnemyBullet = Bullet:subclass()
 
 do
   local LEN = 0.125
-  PlayerBullet.animFrames = {
+  EnemyBullet.animFrames = {
     default = { { SpriteCode.PLAYERBULLET1, LEN },
                 { SpriteCode.PLAYERBULLET2, LEN },
                 { SpriteCode.PLAYERBULLET3, LEN },
@@ -14,7 +14,8 @@ do
   }
 end
 
-function PlayerBullet:init( x, y, dir, parent )
-  PlayerBullet:superinit( self, x, y, dir, "player", parent, Animator(self.animFrames) )
+function EnemyBullet:init( x, y, dir, parent )
+  EnemyBullet:superinit( self, x, y, dir, "enemy", parent, Animator(self.animFrames) )
 end
+
 

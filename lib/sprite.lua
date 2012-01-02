@@ -1,5 +1,7 @@
 
 Sprite = class {
+  x = 0, y = 0, w = 1, h = 1;
+  frame = 0;
   speed = 5;
   moving = false;
   tangible = true;
@@ -13,11 +15,10 @@ Sprite = class {
 }
 
 function Sprite:init( x, y, w, h )
-  self.x = x or 0
-  self.y = y or 0
-  self.w = w or 1
-  self.h = h or 1
-  self.frame = 0
+  self.x = x or Sprite.x
+  self.y = y or Sprite.y
+  self.w = w or Sprite.w
+  self.h = h or Sprite.h
 
   Sprite.weakSpritesTable[self]=self
 end
@@ -31,6 +32,9 @@ function Sprite:draw( camera )
   local x, y, w, h = camera:screenTranslate( self.x, self.y, self.w, self.h )
   if x < -w or y < -h or x > Graphics.gameWidth or y > Graphics.gameHeight then
     return
+  end
+  if Waygame.debug then
+    Graphics:drawRect( x, y - self.jump, 16, 16 )
   end
   if self.frame > 0 then
     Graphics:drawSprite( x, y - self.jump, self.frame )
@@ -105,7 +109,7 @@ function Sprite:move( dir )
     if self.tangible then return true end
   end
   local other = self:testCollisionAt( xt, yt )
-  if other and other ~= self then
+  if type(other)=="table" then
     self:touch( other )
     if self.tangible then return true end
   end
@@ -119,12 +123,16 @@ end
 function Sprite:testCollisionAt( x, y )
   for yt = y-1, y+1 do
     for xt = x-1, x+1 do
-      local other = self.map:getSpriteAt( xt, yt )
-      if other and other ~= self then
-        if Util.rectOverlaps( x, y, self.w, self.h,
-                              other.x, other.y, other.w, other.h )
-        then
-          return other
+      local others = self.map:getSpritesAt( xt, yt )
+      if others then
+        for other, _ in pairs(others) do
+          if other ~= self and other ~= self.parent then
+            if Util.rectOverlaps( x, y, self.w, self.h,
+                                  other.x, other.y, other.w, other.h )
+            then
+              return other
+            end
+          end
         end
       end
     end
@@ -184,7 +192,7 @@ local function perpendicular_dir( d )
   return "I"
 end
 
-function GenericEnemy:translateDir( d )
+function Sprite:translateDir( d )
   local player = Waygame.player
   if d == "T" then return self:getSeekDir(player) end
   if d == "A" then return oppdir[self:getSeekDir(player)] end

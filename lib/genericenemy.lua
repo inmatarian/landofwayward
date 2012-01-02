@@ -68,6 +68,27 @@ function GenericEnemy:move( dirs )
   end
 end
 
+function GenericEnemy:shoot( dirs )
+  local x, y = self.x, self.y
+  local waiting = 1.0 / self.speed
+  for mv, count in dirs:gmatch("(%S)(%d*)") do
+    local d = self:translateDir(mv)
+    count = (count:len() > 0) and tonumber(count) or 1
+    repeat
+      if d == "I" then
+        self:wait( waiting )
+      else
+        self.map:addSprite( EnemyBullet( x, y, d, self ) )
+        if Waygame.player:isSpriteNearVisible(self) then
+          Sound:playsound( SoundEffect.PLAYERSHOOT )
+        end
+        self:wait( waiting )
+      end
+      count = count - 1
+    until count < 1
+  end
+end
+
 function GenericEnemy:distanceTo( other )
   return math.abs(self.x - other.x) + math.abs(self.y - other.y)
 end

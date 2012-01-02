@@ -26,7 +26,7 @@ function Layer:draw( camera )
     for x = left, right do
       local tile = self:get( x, y )
       if tile then
-        love.graphics.rectangle("fill", (x-left-offx)*16+1, (y-top-offy)*16+1, 14, 14)
+        Graphics:drawRect( (x-left-offx)*16+1, (y-top-offy)*16+1, 14, 14 )
       end
     end
   end
@@ -105,7 +105,7 @@ function Map:init( filename )
   self.layers = { above = {}, below = {}, entity = false }
   self.sprites = {}
   self:loadTMX( filename )
-  self.spatialHash = Layer( self.width, self.height, false )
+  self.spatialHash = SpatialHash( self.width, self.height, false )
 end
 
 function Map:loadTMX( filename )
@@ -170,7 +170,7 @@ function Map:removeSprite( sprite )
     end
   end
   if sprite.tangible then
-    self:modifySpatialHash(sprite.x, sprite.y, sprite.w, sprite.h, nil)
+    self.spatialHash:remove(sprite.x, sprite.y, sprite.w, sprite.h, sprite)
   end
 end
 
@@ -191,22 +191,12 @@ function Map:getEntity( x, y )
   return self.layers.entity:get( x, y )
 end
 
-function Map:modifySpatialHash( x, y, w, h, value )
-  local f=math.floor
-  local x1, x2, y1, y2 = f(x), f(x+w-0.01), f(y), f(y+h-0.01)
-  for sy = y1, y2 do
-    for sx = x1, x2 do
-      self.spatialHash:set( sx, sy, value )
-    end
-  end
-end
-
 function Map:updateSpatialHash( sprite, ox, oy, ow, oh )
-  if ox then self:modifySpatialHash(ox, oy, ow, oh, nil) end
-  self:modifySpatialHash(sprite.x, sprite.y, sprite.w, sprite.h, sprite)
+  if ox then self.spatialHash:remove(ox, oy, ow, oh, sprite) end
+  self.spatialHash:add(sprite.x, sprite.y, sprite.w, sprite.h, sprite)
 end
 
-function Map:getSpriteAt( x, y )
+function Map:getSpritesAt( x, y )
   return self.spatialHash:get(x, y)
 end
 

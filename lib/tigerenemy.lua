@@ -27,7 +27,7 @@ function TigerEnemy:run()
         self:move( "IT" )
       end
       if dist < 15 and math.random(0, 5) == 0 then
-        -- shoot
+        self:shoot("T")
       end
     end
   end

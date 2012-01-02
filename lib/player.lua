@@ -70,7 +70,7 @@ function Player:shoot( dir )
   if Waygame.ammo >= 1 then
     Waygame.ammo = Waygame.ammo - 1
     local x, y = self.x, self.y
-    self.map:addSprite( PlayerBullet( x, y, dir ) )
+    self.map:addSprite( PlayerBullet( x, y, dir, self ) )
     Sound:playsound( SoundEffect.PLAYERSHOOT )
   else
     Sound:playsound( SoundEffect.NOAMMO )

@@ -4,12 +4,14 @@ Bullet = Sprite:subclass {
   tangible = false;
 }
 
-function Bullet:init( x, y, dir, bulletType, animator )
+function Bullet:init( x, y, dir, bulletType, parent, animator )
   Bullet:superinit( self, x, y, 1, 1 )
-  self.frame = 1
+  self.frame = 0
   self.dir = dir
   self.bulletType = bulletType
   self.anim = animator
+  self.parent = parent
+  print("Created a bullet", self, bulletType, parent)
 end
 
 function Bullet:update(dt)
@@ -30,6 +32,7 @@ end
 function Bullet:thud( dir )
   if self.dieSoon then return end
   self:prepareToDie( 0.0, 0.0 )
+  print("Bullet dying from thud", self, self.bulletType)
 end
 
 function Bullet:touch( other )
@@ -40,6 +43,7 @@ function Bullet:touch( other )
     other:handleShotByEnemy()
   end
   self:prepareToDie( 0.4, 0.25 )
+  print("Bullet dying", self, self.bulletType, other, self.parent)
 end
 
 function Bullet:prepareToDie( time, speed )
