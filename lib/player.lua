@@ -28,24 +28,24 @@ function Player:init( x, y )
   Waygame.player = self
 end
 
-function Player:handleKeypress(key)
-  local u, d, l, r, sp = key["up"], key["down"], key["left"], key["right"], key[" "]
+function Player:handleInput()
+  if Input:isClicked("s") then self.speed = (self.speed == 5) and 10 or 5 end
 
-  if Waygame:isKey("s") then self.speed = (self.speed == 5) and 10 or 5 end
-
-  if sp >= 1 then
+  if Input.shoot:isPressed() then
     local dir = "I"
-    if u == 1 then dir = "N" end
-    if d == 1 then dir = "S" end
-    if l == 1 then dir = "W" end
-    if r == 1 then dir = "E" end
+    if Input.up:isClicked() then dir = "N"
+    elseif Input.down:isClicked() then dir = "S"
+    elseif Input.left:isClicked() then dir = "W"
+    elseif Input.right:isClicked() then dir = "E" end
     if dir ~= "I" then
       self:shoot( dir )
-    elseif sp == 1 then
+    elseif Input.shoot:isClicked() then
       self.animator:setPattern(self.lastdir.."Hold")
     end
   else
     local dir, least = "I", 9999999
+    local u, d = Input.up:pressedLength(), Input.down:pressedLength()
+    local l, r = Input.left:pressedLength(), Input.right:pressedLength()
     if u > 0 and u < least then dir, least = "N", u end
     if d > 0 and d < least then dir, least = "S", d end
     if l > 0 and l < least then dir, least = "W", l end
@@ -81,7 +81,7 @@ function Player:update(dt)
   Player:super().update(self, dt)
   self.animator:update(dt)
   self.frame = self.animator:current()
-  self:handleKeypress(Waygame.keypress)
+  self:handleInput()
 end
 
 function Player:touch( other )

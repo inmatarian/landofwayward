@@ -40,7 +40,7 @@ function LogoState:wait( secs )
   local dt = 0
   while dt < secs do
     dt = dt + coroutine.yield()
-    if Waygame:isKey("return", "escape") then
+    if Input.menu:isClicked() or Input.enter:isClicked() then
       self.co = nil
       coroutine.yield()
     end

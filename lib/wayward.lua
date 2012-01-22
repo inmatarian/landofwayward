@@ -17,9 +17,7 @@ function Wayward:init()
   math.randomseed( os.time() )
   Graphics:init()
   Sound:init()
-
-  self.keypress = Util.setDefaultValue( {}, 0 );
-  self.keyrepeat = Util.setDefaultValue( {}, 0 );
+  Input:init()
 
   self.stateStack = {}
   self:pushState( PlaceholderState( TitleState ) )
@@ -35,13 +33,10 @@ function Wayward:shutdown()
 end
 
 function Wayward:update(dt)
-  if self:isKey("f2") then Graphics:saveScreenshot() end
-  if self:isKey("f3") then self.debug = not self.debug end
-  if self:isKey("f10") then love.event.push('q') end
-
-  local scale
-  for i = 1, 4 do if self:isKey(i) then scale = i end end
-  if scale then Graphics:changeScale(scale) end
+  if Input:isClicked("f2") then Graphics:saveScreenshot() end
+  if Input:isClicked("f3") then self.debug = not self.debug end
+  if Input:isClicked("f5") then Graphics:toggleScale() end
+  if Input:isClicked("f10") then love.event.push('q') end
 
   if #self.stateStack > 0 then
     self.stateStack[#self.stateStack]:update(dt)
@@ -49,7 +44,7 @@ function Wayward:update(dt)
 
   Sound:update(dt)
   Graphics:update(dt)
-  self:updateKeys(dt)
+  Input:update(dt)
   if #self.stateStack == 0 then love.event.push('q') end
 end
 
@@ -62,13 +57,11 @@ function Wayward:draw()
 end
 
 function Wayward:keypressed(key, unicode)
-  self.keypress[key] = 1
-  self.keyrepeat[key] = 1
+  Input:handlePressed(key)
 end
 
 function Wayward:keyreleased(key, unicode)
-  self.keypress[key] = nil
-  self.keyrepeat[key] = nil
+  Input:handleReleased(key)
 end
 
 function Wayward:focus( focused )
@@ -87,21 +80,6 @@ end
 function Wayward:popState()
   print( "State Machine", state )
   table.remove( self.stateStack )
-end
-
-function Wayward:updateKeys(dt)
-  local keys = self.keypress
-  local repeats = self.keyrepeat
-  for i, v in pairs(repeats) do
-    if v == 1 then
-      repeats[i] = 1 + self.keyDelay
-    elseif keys[i] >= v then
-      repeats[i] = v + self.keyRate
-    end
-  end
-  for i, v in pairs(keys) do
-    keys[i] = v + dt
-  end
 end
 
 -- True if any of the keys is pressed==1

@@ -40,12 +40,12 @@ end
 function TitleState:update(dt)
   local move = 0
 
-  if Waygame:isPressed("up") then move = -1
-  elseif Waygame:isPressed("down") then move = 1
-  elseif Waygame:isPressed("pageup") then move = -6
-  elseif Waygame:isPressed("pagedown") then move = 6
-  elseif Waygame:isKey("home") then move = -9001
-  elseif Waygame:isKey("end") then move = 9001
+  if Input:isRepeating("up") then move = -1
+  elseif Input:isRepeating("down") then move = 1
+  elseif Input:isRepeating("pageup") then move = -6
+  elseif Input:isRepeating("pagedown") then move = 6
+  elseif Input:isRepeating("home") then move = -9001
+  elseif Input:isRepeating("end") then move = 9001
   end
 
   if move ~= 0 then
@@ -62,9 +62,9 @@ function TitleState:update(dt)
     if self.scroll < 1 then self.scroll = 1 end
   else
     local selection
-    if Waygame:isKey("escape") then
+    if Input.menu:isClicked() then
       selection = "_escape"
-    elseif Waygame:isKey("return") then
+    elseif Input.enter:isClicked() then
       selection = self.currentMenu[self.option]
     end
     if selection then

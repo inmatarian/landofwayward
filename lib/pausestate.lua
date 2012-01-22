@@ -11,7 +11,7 @@ end
 
 function PauseState:update(dt)
   self.text:update(dt)
-  if Waygame:isKey("return", "escape") then
+  if Input.menu:isClicked() or Input.enter:isClicked() then
     Waygame:popState()
   end
 end

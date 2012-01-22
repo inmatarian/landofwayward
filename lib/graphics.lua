@@ -122,11 +122,17 @@ function Graphics:saveScreenshot()
   local filedata = love.image.newEncodedImageData(screen, "bmp")
   local name = string.format("screenshot-%s.bmp", os.date("%Y%m%d-%H%M%S"))
   love.filesystem.write( name, filedata )
+  print( "Saved Screenshot: " .. name )
 end
 
 function Graphics:changeScale( size )
   self.xScale, self.yScale = size, size
   love.graphics.setMode( self.gameWidth*size, self.gameHeight*size, false )
+end
+
+function Graphics:toggleScale()
+  local size = (self.xScale % 4) + 1
+  self:changeScale( size )
 end
 
 function Graphics:text( x, y, color, str )
