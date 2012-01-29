@@ -28,10 +28,28 @@ function Player:init( x, y )
   Waygame.player = self
 end
 
+function Player:prioritizedDirectionPressed()
+  local dir, least = "I", 9999999
+  local u, d = Input.up:pressedLength(), Input.down:pressedLength()
+  local l, r = Input.left:pressedLength(), Input.right:pressedLength()
+  if u > 0 and u < least then dir, least = "N", u end
+  if d > 0 and d < least then dir, least = "S", d end
+  if l > 0 and l < least then dir, least = "W", l end
+  if r > 0 and r < least then dir, least = "E", r end
+  return dir
+end
+
 function Player:handleInput()
   if Input:isClicked("s") then self.speed = (self.speed == 5) and 10 or 5 end
 
-  if Input.shoot:isPressed() then
+  if Input.shoot:isClicked() then
+    self.animator:setPattern(self.lastdir.."Hold")
+    local dir = self:prioritizedDirectionPressed()
+    if dir ~= "I" then
+      self:shoot( dir )
+    end
+
+  elseif Input.shoot:isPressed() then
     local dir = "I"
     if Input.up:isClicked() then dir = "N"
     elseif Input.down:isClicked() then dir = "S"
@@ -39,21 +57,17 @@ function Player:handleInput()
     elseif Input.right:isClicked() then dir = "E" end
     if dir ~= "I" then
       self:shoot( dir )
-    elseif Input.shoot:isClicked() then
-      self.animator:setPattern(self.lastdir.."Hold")
     end
+
   else
-    local dir, least = "I", 9999999
-    local u, d = Input.up:pressedLength(), Input.down:pressedLength()
-    local l, r = Input.left:pressedLength(), Input.right:pressedLength()
-    if u > 0 and u < least then dir, least = "N", u end
-    if d > 0 and d < least then dir, least = "S", d end
-    if l > 0 and l < least then dir, least = "W", l end
-    if r > 0 and r < least then dir, least = "E", r end
+    local dir = self:prioritizedDirectionPressed()
     if dir ~= "I" then
       self:move( dir )
     else
       self.animator:setPattern(self.lastdir)
+      if not self.moving then
+        self.xexcess, self.yexcess = 0, 0
+      end
     end
   end
 end
@@ -72,7 +86,7 @@ function Player:shoot( dir )
     local x, y = self.x, self.y
     self.map:addSprite( PlayerBullet( x, y, dir, self ) )
     Sound:playsound( SoundEffect.PLAYERSHOOT )
-  else
+  elseif Waygame.ammoMax >= 1 then
     Sound:playsound( SoundEffect.NOAMMO )
   end
 end

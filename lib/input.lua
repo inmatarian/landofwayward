@@ -1,5 +1,5 @@
 
-local Button = class()
+Button = class()
 
 function Button:init( ... )
   self.eats = {}
@@ -8,32 +8,26 @@ function Button:init( ... )
   end
 end
 
-local function testButton( eats, active )
-  for k, _ in pairs(eats) do
-    if active[k] then return true end
+function Button.test( eats, active, direct )
+  for k, v in pairs(active) do
+    if eats[k] then return (direct and v) or true end
   end
-  return false
 end
 
 function Button:isPressed()
-  return testButton( self.eats, Input.pressed )
+  return self.test( self.eats, Input.length )
 end
 
 function Button:isClicked()
-  return testButton( self.eats, Input.clicked )
+  return self.test( self.eats, Input.clicked )
 end
 
-function Button:isRepeating()
-  return testButton( self.eats, Input.repeating )
+function Button:isRepeating() return
+  self.test( self.eats, Input.repeating )
 end
 
 function Button:pressedLength()
-  local len = 0
-  for k, _ in pairs(self.eats) do
-    local v = Input.length[k]
-    if v and v > len then len = v end
-  end
-  return len
+  return self.test( self.eats, Input.length, true ) or 0
 end
 
 ------------------------------------------------------------
@@ -48,7 +42,6 @@ Input = {
   pause = Button("p");
   enter = Button("return");
 
-  pressed = {};
   clicked = {};
   repeating = {};
   length = {};
@@ -61,19 +54,12 @@ end
 function Input:handlePressed(k)
   k = tostring(k)
   self.repeating[k] = true
-  if not self.pressed[k] then
-    self.pressed[k] = true
-    self.clicked[k] = true
-    self.length[k] = 0.001
-  end
+  if not self:isPressed(k) then self.clicked[k], self.length[k] = true, 0.001 end
 end
 
 function Input:handleReleased(k)
   k = tostring(k)
-  self.repeating[k] = nil
-  self.pressed[k] = nil
-  self.clicked[k] = nil
-  self.length[k] = nil
+  self.repeating[k], self.clicked[k], self.length[k] = nil, nil, nil
 end
 
 function Input:update(dt)
@@ -83,7 +69,7 @@ function Input:update(dt)
 end
 
 function Input:isPressed(k)
-  return self.pressed[tostring(k)]
+  return self.length[tostring(k)]~=nil
 end
 
 function Input:isClicked(k)

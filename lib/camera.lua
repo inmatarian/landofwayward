@@ -25,7 +25,7 @@ function Camera:anchorFollow()
   local math = math
   local spr = self.following
   local surround = 2
-  local tx, ty = spr.x - self.xHang, spr.y - self.yHang
+  local tx, ty = (spr.x+spr.xexcess) - self.xHang, (spr.y+spr.yexcess) - self.yHang
   local dx, dy = self.x - tx, self.y - ty
 
   local zx = (math.abs(dx) <= surround) and 0 or (math.abs(dx) - surround)
