@@ -17,7 +17,7 @@ end
 
 function ExplorerState:init()
   self.id = "maps/testboard.tmx"
-  self.map = Map("maps/testboard.tmx")
+  self.map = Map("maps/waymap_HUB_v02.5.tmx")
   local px, py = self.map:locateEntity(EntityCode.SYLVIA)
   px, py = px or 1, py or 1
   self.player = Player( px, py )
@@ -26,6 +26,7 @@ function ExplorerState:init()
   self:loadThings()
   self.camera:setBounds( 0, 0, self.map.width, self.map.height )
   self.ammoAnim = Animator( self.ammoFrames )
+  collectgarbage()
 end
 
 function ExplorerState:loadThings()

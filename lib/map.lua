@@ -102,7 +102,7 @@ end
 Map = class( { width=0; height=0 } )
 
 function Map:init( filename )
-  self.layers = { above = {}, below = {}, entity = false }
+  self.layers = { above = false, below = false, entity = false }
   self.sprites = {}
   self:loadTMX( filename )
   self.spatialHash = SpatialHash( self.width, self.height, false )
@@ -125,36 +125,40 @@ function Map:loadTMX( filename )
 
   for _, elem in ipairs(layers) do
     local w, h = tonumber(elem.xarg.width), tonumber(elem.xarg.height)
-    local layertype
+    local layernum
     local props = DOM.getElementByLabel( elem, "properties" )
     for _, property in ipairs(props) do
-      if property.xarg.name == "type" then layertype = property.xarg.value end
+      if property.xarg.name == "layernum" then layernum = property.xarg.value end
     end
-    if layertype ~= nil then
+    if layernum ~= nil then
       local dataelem = DOM.getElementByLabel( elem, "data" )
       local layer = DOM.loadLayer( dataelem, w, h, firstgid )
-      if layertype == "entity" then
+      if layernum == "1" then
+        self.layers.below = layer
+      elseif layernum == "2" then
+        self.layers.above = layer
+      elseif layernum == "0" then
         self.layers.entity = layer
-      elseif self.layers[layertype] then
-        table.insert( self.layers[layertype], layer )
       end
     end
   end
 end
 
 function Map:draw( camera )
-  for _, layer in ipairs( self.layers.below ) do
-    layer:draw(camera)
+  if self.layers.below then
+    self.layers.below:draw(camera)
   end
   if Waygame.debug then
-    self.layers.entity:draw(camera)
+    if self.layers.entity then
+      self.layers.entity:draw(camera)
+    end
     self.spatialHash:draw(camera)
   end
   for _, sprite in ipairs( self.sprites ) do
     sprite:draw(camera)
   end
-  for _, layer in ipairs( self.layers.above ) do
-    layer:draw(camera)
+  if self.layers.above then
+    self.layers.above:draw(camera)
   end
 end
 

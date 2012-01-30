@@ -25,7 +25,8 @@ function Graphics:init()
   love.graphics.setColorMode("modulate")
   love.graphics.setBlendMode("alpha")
   self:loadFont(self.fontFilename)
-  self:loadTileset(self.tileFilename)
+  self:specialLoadImage("wayward0.png")
+  -- self:loadTileset(self.tileFilename)
   self:loadSprites(self.spriteFilename)
 end
 
@@ -79,6 +80,35 @@ function Graphics:loadSprites(name)
   end
 end
 
+function Graphics:prepareTiles( index, x, y, w, h, sw, sh )
+  for ty = y, y+h-1, 16 do
+    for tx = x, x+w-1, 16 do
+      self.tiles[index] = love.graphics.newQuad(tx, ty, 16, 16, sw, sh)
+      index = index + 1
+    end
+  end
+end
+
+function Graphics:specialLoadImage(name)
+  local iw, ih = 512, 256
+  local source = love.image.newImageData(name)
+
+  local merge = love.image.newImageData(iw, ih)
+  merge:paste(source,   0,   0,   0,    0, 256, 256)
+  merge:paste(source, 256,   0,   0, 1296, 256, 176)
+  merge:paste(source, 256, 176, 128,  256, 128,  64)
+  merge:paste(source, 256, 256,   0, 1024, 256, 256)
+
+  local image = love.graphics.newImage(merge)
+  image:setFilter("nearest", "nearest")
+
+  self:prepareTiles(    1,   0,   0, 256, 256, iw, ih )
+  self:prepareTiles( 1297, 256,   0, 256, 176, iw, ih )
+  self:prepareTiles( 1024, 256, 256, 256, 256, iw, ih )
+
+  self.tilesetImage = image
+end
+
 function Graphics:loadFont(name)
   local fontimage = love.graphics.newImage(name)
   fontimage:setFilter("nearest", "nearest")
@@ -97,9 +127,10 @@ function Graphics:drawPixel( x, y, r, g, b )
 end
 
 function Graphics:drawTile( x, y, tile )
-  if tile == 0 then end
+  local quad = self.tiles[tile]
+  if not quad then return end
   local xs, ys = self.xScale, self.yScale
-  love.graphics.drawq( self.tilesetImage, self.tiles[tile],
+  love.graphics.drawq( self.tilesetImage, quad,
     math.floor(x*ys)/ys, math.floor(y*ys)/ys )
   self.tilesDrawn = self.tilesDrawn + 1
 end
@@ -110,9 +141,10 @@ function Graphics:drawRect( x, y, w, h, color, lined )
 end
 
 function Graphics:drawSprite( x, y, idx )
-  if idx == 0 then end
+  local quad = self.sprites[idx]
+  if not quad then return end
   local xs, ys = self.xScale, self.yScale
-  love.graphics.drawq( self.spriteImage, self.sprites[idx],
+  love.graphics.drawq( self.spriteImage, quad,
     math.floor(x*ys)/ys, math.floor(y*ys)/ys )
   self.spritesDrawn = self.spritesDrawn + 1
 end
