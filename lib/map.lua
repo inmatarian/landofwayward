@@ -1,4 +1,6 @@
 
+local deflate = require("lib.3rdparty.deflate.deflatelua")
+
 Layer = class()
 
 function Layer:init( width, height, default )
@@ -91,8 +93,28 @@ function DOM.loadLayer( data, width, height, firstgid )
       if x >= width then x = 0; y = y + 1 end
       if str:sub(i,i)=='\n' then i = i + 1 end
     end
-  else
-    error( "unknown encoding "..data.xarg.encoding )
+  elseif data.xarg.encoding == "base64" then
+    local inflate
+    if data.xarg.compression == "zlib" then inflate = deflate.inflate_zlib
+    elseif data.xarg.compression == "gzip" then inflate = deflate.gunzip
+    else error("Unknown compression "..data.xarg.compression) end
+
+    local decoded = Util.base64decode(data[1])
+    local x, y, b, long = 0, 0, 0, { 0, 0, 0, 0 }
+    inflate {
+      input = decoded,
+      output = function(v)
+        b = b + 1
+        long[b] = v
+        if b == 4 then
+          local t = (long[2] * 256) + long[1]
+          layer:set( x, y, t )
+          x = x + 1
+          if x >= width then x, y = 0, y + 1 end
+          b = 0
+        end
+      end
+    }
   end
   return layer
 end

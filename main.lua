@@ -5,12 +5,12 @@ local Runaway = {}
 
 function Runaway.init()
   Runaway.reset()
-  debug.sethook( Runaway.hook, "l" )
+  -- debug.sethook( Runaway.hook, "l" )
 end
 
 function Runaway.reset()
   Runaway.lines = 0
-  Runaway.warning = 100000
+  Runaway.warning = 1000000
 end
 
 function Runaway.hook( event )

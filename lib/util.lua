@@ -127,3 +127,31 @@ function Util.rectOverlaps( ax1, ay1, aw, ah, bx1, by1, bw, bh )
   return not ((ax1 > bx2) or (bx1 > ax2) or (ay1 > by2) or (by1 > ay2))
 end
 
+  
+local b64t = {}
+local b64s='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+do
+  for i = 1, #b64s do
+    b64t[b64s:sub(i,i)]=i-1
+  end
+end
+
+function Util.base64decode( str )
+  local d = {}
+  local shift, accum, out = 0, 0, 1
+  for ch in str:gmatch(".") do
+    local val = b64t[ch]
+    if val then
+      shift, accum = shift + 6, (accum * 64) + val
+      if shift >= 8 then
+        shift = shift - 8
+        local div = 2^shift
+        d[out] = string.char( math.floor(accum / div) % 256 )
+        out = out + 1
+        accum = accum % div
+      end
+    end
+  end
+  return table.concat(d)
+end
+

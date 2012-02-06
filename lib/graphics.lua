@@ -25,7 +25,7 @@ function Graphics:init()
   love.graphics.setColorMode("modulate")
   love.graphics.setBlendMode("alpha")
   self:loadFont(self.fontFilename)
-  self:specialLoadImage("wayward0.png")
+  self:specialLoadImage("gfx/wayward0.png")
   -- self:loadTileset(self.tileFilename)
   self:loadSprites(self.spriteFilename)
 end
