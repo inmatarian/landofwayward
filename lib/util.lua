@@ -191,6 +191,45 @@ end
 
 -----------------------------------------------------------------------------
 
+Util.Queue = class{ left = 0, right = 0 }
+
+function Util.Queue:init()
+  self:clear()
+end
+
+function Util.Queue:clear()
+  for i = self.left, self.right do
+    self[i] = nil
+  end
+  self.left = 0
+  self.right = 0
+end
+
+function Util.Queue:enqueue(...)
+  for i = 1, select('#', ...) do
+    self.right = self.right + 1
+    self[self.right] = select(i, ...)
+  end
+end
+
+function Util.Queue:dequeue()
+  self.left = self.left + 1
+  local R = self[self.left]
+  self[self.left] = nil
+  if self.left == self.right then self.left, self.right = 0, 0 end
+  return R
+end
+
+function Util.Queue:isEmpty()
+  return (self.left == self.right)
+end
+
+function Util.Queue:size()
+  return self.right - self.left
+end
+
+-----------------------------------------------------------------------------
+
 Util.MethodBinding = class()
 
 function Util.MethodBinding:init( obj, func )

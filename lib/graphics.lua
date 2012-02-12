@@ -98,7 +98,7 @@ function Graphics:prepareTiles( index, x, y, w, h, sw, sh )
 end
 
 function Graphics:specialLoadImage(name)
-  local iw, ih = 512, 256
+  local iw, ih = 512, 512
   local source = love.image.newImageData(name)
 
   local merge = love.image.newImageData(iw, ih)
@@ -112,7 +112,7 @@ function Graphics:specialLoadImage(name)
 
   self:prepareTiles(    1,   0,   0, 256, 256, iw, ih )
   self:prepareTiles( 1297, 256,   0, 256, 176, iw, ih )
-  self:prepareTiles( 1024, 256, 256, 256, 256, iw, ih )
+  self:prepareTiles( 1025, 256, 256, 256, 256, iw, ih )
 
   self.tilesetImage = image
 end

@@ -17,7 +17,7 @@ end
 
 function ExplorerState:init()
   self.id = "maps/testboard.tmx"
-  self.map = Map("maps/waymap_HUB_v02.5.tmx")
+  self.map = Map("maps/testboard.tmx")
   local px, py = self.map:locateEntity(EntityCode.SYLVIA)
   px, py = px or 1, py or 1
   self.player = Player( px, py )

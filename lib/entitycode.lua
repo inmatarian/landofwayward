@@ -1,8 +1,8 @@
 
-local B = 769
+local B = 1025
 
 EntityCode = {
-  BLOCK = B,
+  BLOCK = B+15,
   BUNNY = B+1,
   ABBOT = B+4,
   LYNCH = B+8,

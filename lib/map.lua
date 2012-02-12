@@ -128,6 +128,7 @@ function Map:init( filename )
   self.sprites = {}
   self:loadTMX( filename )
   self.spatialHash = SpatialHash( self.width, self.height, false )
+  self.spriteQueue = Util.Queue()
 end
 
 function Map:loadTMX( filename )
@@ -202,7 +203,10 @@ end
 
 function Map:update(dt)
   for i = 1, #self.sprites do
-    self.sprites[i]:update(dt)
+    self.spriteQueue:enqueue(self.sprites[i])
+  end
+  while not self.spriteQueue:isEmpty() do
+    self.spriteQueue:dequeue():update(dt)
   end
   table.sort( self.sprites, Sprite.sortingFunction )
 end
