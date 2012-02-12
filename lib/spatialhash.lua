@@ -5,6 +5,7 @@ function SpatialHash:init( width, height )
   self.width = width
   self.height = height
   self.data = {}
+  self.emptyTables = Util.Stack()
 end
 
 local function internalAdd( self, x, y, v )
@@ -12,7 +13,7 @@ local function internalAdd( self, x, y, v )
   local key = 1 +(y*self.width + x)
   local tab = self.data[key]
   if not tab then
-    tab = {}
+    tab = self.emptyTables:pop() or {}
     self.data[key] = tab
   end
   tab[v] = true
@@ -42,7 +43,10 @@ local function internalRemove( self, x, y, v )
   tab[v] = nil
   local empty = true
   for i, v in pairs(tab) do empty = false; break end
-  if empty then self.data[key] = nil end
+  if empty then
+    if self.emptyTables:size() < 256 then self.emptyTables:push(tab) end
+    self.data[key] = nil
+  end
 end
 
 function SpatialHash:remove( x, y, w, h, v )

@@ -176,8 +176,8 @@ function Map:draw( camera )
     end
     self.spatialHash:draw(camera)
   end
-  for _, sprite in ipairs( self.sprites ) do
-    sprite:draw(camera)
+  for i = 1, #self.sprites do
+    self.sprites[i]:draw(camera)
   end
   if self.layers.above then
     self.layers.above:draw(camera)
@@ -201,8 +201,8 @@ function Map:removeSprite( sprite )
 end
 
 function Map:update(dt)
-  for _, sprite in ipairs( self.sprites ) do
-    sprite:update(dt)
+  for i = 1, #self.sprites do
+    self.sprites[i]:update(dt)
   end
   table.sort( self.sprites, Sprite.sortingFunction )
 end

@@ -11,7 +11,7 @@ Graphics = {
   tilesDrawn = 0,
   spritesDrawn = 0,
   fps = 0,
-  fpsClock = 0,
+  mem = 0,
   fontset = [==[ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~]==],
 }
 Graphics.xScale = math.floor(love.graphics.getWidth() / Graphics.gameWidth)
@@ -28,14 +28,22 @@ function Graphics:init()
   self:specialLoadImage("gfx/wayward0.png")
   -- self:loadTileset(self.tileFilename)
   self:loadSprites(self.spriteFilename)
+
+  self.fpsClock = Util.CallbackTimer(1, Util.MethodBinding(self, self.updateFPS))
+  self.memClock = Util.CallbackTimer(1, Util.MethodBinding(self, self.updateMEM))
 end
 
 function Graphics:update(dt)
-  self.fpsClock = self.fpsClock + dt
-  if self.fpsClock > 1 then
-    self.fpsClock = self.fpsClock - 1
-    self.fps = love.timer.getFPS()
-  end
+  self.fpsClock:update(dt)
+  self.memClock:update(dt)
+end
+
+function Graphics:updateFPS()
+  self.fps = love.timer.getFPS()
+end
+
+function Graphics:updateMEM()
+  self.mem = collectgarbage("count")
 end
 
 function Graphics:start()
@@ -50,7 +58,7 @@ function Graphics:stop( outputDebug )
   if outputDebug then
     self:text( 8, 224, WHITE,
       string.format("T:%i S:%i FPS:%i MEM:%ik",
-        self.tilesDrawn, self.spritesDrawn, self.fps, collectgarbage("count") ) )
+        self.tilesDrawn, self.spritesDrawn, self.fps, self.mem ) )
   end
 end
 

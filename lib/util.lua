@@ -155,3 +155,68 @@ function Util.base64decode( str )
   return table.concat(d)
 end
 
+-----------------------------------------------------------------------------
+
+Util.Stack = class()
+
+function Util.Stack:init()
+  self:clear()
+end
+
+function Util.Stack:push(...)
+  for i = 1, select('#',...) do
+    self[#self+1] = select(i, ...)
+  end
+end
+
+function Util.Stack:pop()
+  local N, R = #self, nil
+  if N > 0 then R, self[N] = self[N], nil end
+  return R
+end
+
+function Util.Stack:isEmpty()
+  return (#self <= 0)
+end
+
+function Util.Stack:clear()
+  for i = 1, #self do
+    self[i] = nil
+  end
+end
+
+function Util.Stack:size()
+  return #self
+end
+
+-----------------------------------------------------------------------------
+
+Util.MethodBinding = class()
+
+function Util.MethodBinding:init( obj, func )
+  self.obj, self.func = obj, func
+end
+
+function Util.MethodBinding.__call(self, ...)
+  self.func(self.obj, ...)
+end
+
+-----------------------------------------------------------------------------
+
+Util.CallbackTimer = class()
+
+function Util.CallbackTimer:init( freq, func )
+  self.func, self.freq = func, freq
+  self.clock = 0
+end
+
+function Util.CallbackTimer:update(dt)
+  self.clock = self.clock + dt
+  if self.clock > self.freq then
+    self.clock = self.clock - self.freq
+    self.func()
+  end
+end
+
+-----------------------------------------------------------------------------
+
