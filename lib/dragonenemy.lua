@@ -28,9 +28,10 @@ function DragonEnemy:run()
     else
       local r = math.random( 0, 15 )
       if r > 14 then
-        local p = PathFinder.getPath( self.x, self.y, player.x, player.y, self.map )
+        local p = PathFinder.getPath( self, player.x, player.y, self.map )
         if p then
-          p = p:sub(0, math.random( 1, p:len() ))
+          p = p:sub(1, math.floor(p:len() * (math.random(500, 1000)/1000)))
+          p = p:gsub("([^I])","I%1")
           self:move( p )
         end
       elseif r >= 8 then

@@ -26,7 +26,9 @@ function masterclass:superinit(obj, ...)
   return self:super().init(obj, ...)
 end
 
-function class( prototype )
-  return masterclass:subclass( prototype )
-end
+class = setmetatable({}, {
+  __call = function( f, prototype )
+    return masterclass:subclass( prototype )
+  end
+})
 

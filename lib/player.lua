@@ -108,3 +108,13 @@ function Player:isSpriteNearVisible( other )
   return (ox > (x - 12)) and (ox < (x + 12)) and (oy > (y - 9)) and (oy < (y + 9))
 end
 
+function Player:blockedBy( ent )
+  if ent == EntityCode.NOSYLVIAWALL or
+     ent == EntityCode.GOOP or
+     ent == EntityCode.SIGN
+  then
+    return true
+  end
+  return GenericEnemy:super().blockedBy( self, ent )
+end
+

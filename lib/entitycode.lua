@@ -21,5 +21,9 @@ EntityCode = {
   SPIDER = B+39,
   AMMO = B+40,
   HEALTH = B+41,
+  NOENEMYWALL = B+128,
+  NOSYLVIAWALL = B+129,
+  GOOP = B+130,
+  SIGN = B+131,
 }
 

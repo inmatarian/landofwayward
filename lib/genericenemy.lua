@@ -44,6 +44,7 @@ end
 
 function GenericEnemy:move( dirs )
   if self.moving then return end
+  dirs = dirs:upper()
   local waiting = 1.0 / self.speed
   for mv, count in dirs:gmatch("(%S)(%d*)") do
     local d = self:translateDir(mv)
@@ -104,5 +105,15 @@ function GenericEnemy:handleShotByPlayer()
     self.map:removeSprite( self )
     Waygame:killItem(self.id)
   end
+end
+
+function GenericEnemy:blockedBy( ent )
+  if ent == EntityCode.NOENEMYWALL or
+     ent == EntityCode.GOOP or
+     ent == EntityCode.SIGN
+  then
+    return true
+  end
+  return GenericEnemy:super().blockedBy( self, ent )
 end
 

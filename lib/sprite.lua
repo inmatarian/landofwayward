@@ -103,8 +103,7 @@ function Sprite:move( dir )
   elseif dir == "E" then xt = floor(xt + 1)
   end
 
-  local ent = self.map:getEntity( xt, yt )
-  if ent == EntityCode.BLOCK then
+  if self:blockedAt( xt, yt ) then
     self:thud( dir )
     if self.tangible then return true end
   end
@@ -118,6 +117,15 @@ function Sprite:move( dir )
   self.xtarget, self.ytarget = xt, yt
   self.xexcess, self.yexcess = 0, 0
   self.moving = true
+end
+
+function Sprite:blockedAt( x, y )
+  local ent = self.map:getEntity( x, y )
+  return self:blockedBy( ent )
+end
+
+function Sprite:blockedBy( ent )
+  if ent == EntityCode.BLOCK then return true end
 end
 
 function Sprite:testCollisionAt( x, y )

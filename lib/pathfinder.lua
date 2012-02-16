@@ -9,6 +9,8 @@ local pairs = pairs
 local floor = math.floor
 local concat = table.concat
 
+local TIMEOUT = 128
+
 local function dist( startx, starty, currx, curry, targx, targy )
   local dx1, dy1 = currx - targx, curry - targy
   local dx2, dy2 = startx - targx, starty - targy
@@ -18,14 +20,6 @@ end
 
 local function lochash(x, y)
   return (y * 1000 + x)
-end
-
-local function blockedAt(x, y, map)
-  local ent = map:getEntity( x, y )
-  if ent == EntityCode.BLOCK then return true end
-  -- local other = map:getSpriteAt( x, y )
-  -- if other then return true end
-  return false
 end
 
 local function buildPath( target, parent, dir )
@@ -48,15 +42,16 @@ local function sortPriorityQueue( q, f )
   end)
 end
 
-function PathFinder.getPath( sx, sy, tx, ty, map )
-  sx, sy, tx, ty = floor(sx), floor(sy), floor(tx), floor(ty)
+function PathFinder.getPath( sprite, tx, ty, map )
+  local sx, sy = floor(sprite.x), floor(sprite.y)
+  tx, ty = floor(tx), floor(ty)
   local startID, targetID = lochash(sx, sy), lochash(tx, ty)
   local startDist = dist(sx, sy, sx, sy, tx, ty)
   local cap = startDist * 5
   local known, closed, f, g, h, x, y = {}, {}, {}, {}, {}, {}, {}
   local parent, dir = {}, {}
   local openqueue = {}
-  local opennodes, nodecount = 1, 0
+  local opennodes, nodecount, nodetimeout = 1, 0, TIMEOUT
   local adjlist = {{0, -1, 'N'}, {0, 1, 'S'}, {-1, 0, 'W'}, {1, 0, 'E'}}
 
   known[startID], x[startID], y[startID] = true, sx, sy
@@ -80,7 +75,7 @@ function PathFinder.getPath( sx, sy, tx, ty, map )
         local id = lochash(nx, ny)
         if not closed[id] then
           if not known[id] then
-            if blockedAt( nx, ny, map ) then
+            if sprite:blockedAt( nx, ny ) then
               known[id], closed[id] = true, true
             else
               opennodes = opennodes + 1
@@ -101,6 +96,10 @@ function PathFinder.getPath( sx, sy, tx, ty, map )
       end
     end
     if qchanges then sortPriorityQueue( openqueue, f ) end
+    if nodecount >= nodetimeout then
+      nodetimeout = nodetimeout + TIMEOUT
+      if coroutine.running() then coroutine.yield() end
+    end
   end
   print( "Unable to find path after search", nodecount )
   return nil
