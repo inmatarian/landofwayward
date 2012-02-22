@@ -2,7 +2,17 @@
 Animator = class()
 Animator.FREEZE = "freeze"
 
+local weakInstanceTable = setmetatable({}, {_mode="k"})
+
+function Animator.updateAll(dt)
+  for k, _ in pairs(weakInstanceTable) do
+    k:update(dt)
+  end
+end
+
 function Animator:init( frames )
+  weakInstanceTable[self]=true
+
   self.frames = frames or {}
   if frames["default"] then
     self.pattern = "default"

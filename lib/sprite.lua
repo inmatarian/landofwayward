@@ -36,6 +36,11 @@ function Sprite:draw( camera )
   if Waygame.debug then
     Graphics:drawRect( x, y - self.jump, 16, 16 )
   end
+
+  if self.animator then
+    self.frame = self.animator:current()
+  end
+
   if self.frame > 0 then
     Graphics:drawSprite( x, y - self.jump, self.frame )
   end

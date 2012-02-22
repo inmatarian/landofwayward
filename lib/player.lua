@@ -93,8 +93,6 @@ end
 
 function Player:update(dt)
   Player:super().update(self, dt)
-  self.animator:update(dt)
-  self.frame = self.animator:current()
   self:handleInput()
 end
 

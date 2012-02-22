@@ -33,6 +33,8 @@ function Wayward:shutdown()
 end
 
 function Wayward:update(dt)
+  Animator.updateAll(dt)
+
   if Input:isClicked("f2") then Graphics:saveScreenshot() end
   if Input:isClicked("f3") then self.debug = not self.debug end
   if Input:isClicked("f5") then Graphics:toggleScale() end
