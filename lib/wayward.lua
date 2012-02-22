@@ -57,6 +57,14 @@ function Wayward:draw()
   Graphics:stop(self.debug)
 end
 
+function Wayward:downdraw( state )
+  local N = #self.stateStack
+  while self.stateStack[N] ~= state and N > 0 do N = N - 1 end
+  if self.stateStack[N-1] then
+    self.stateStack[N-1]:draw()
+  end
+end
+
 function Wayward:keypressed(key, unicode)
   Input:handlePressed(key)
 end

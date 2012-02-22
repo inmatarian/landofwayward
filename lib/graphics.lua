@@ -145,7 +145,12 @@ end
 
 function Graphics:drawRect( x, y, w, h, color, lined )
   if color then self:setColor(color) end
-  love.graphics.rectangle( lined and "line" or "fill" , x, y, w, h)
+  love.graphics.rectangle( lined and "line" or "fill", x, y, w, h)
+end
+
+function Graphics:fillScreen( color )
+  if color then self:setColor(color) end
+  love.graphics.rectangle( "fill", 0, 0, self.gameWidth, self.gameHeight)
 end
 
 function Graphics:drawSprite( x, y, idx )

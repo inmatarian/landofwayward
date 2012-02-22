@@ -15,84 +15,38 @@ local function generateSoundTestMenu()
 end
 
 function TitleState:init()
-  self.currentMenu = self.MAINMENU
-  self.option = 1
-  self.scroll = 1
+  self.controlMenu = ControlMenu( self.MAINMENU )
   self.SOUNDTESTMENU = generateSoundTestMenu()
 end
 
 function TitleState:draw()
   Graphics:text( 16, 16, WHITE, "The Land Of Wayward" )
-  local X, Y = 160, 120
-  local x, y = X, Y
-  local i, N = self.scroll, self.scroll + 7
-  while i < N and i <= #self.currentMenu do
-    local option = self.currentMenu[i]
-    Graphics:text( x, y, WHITE, option )
-    if self.currentMenu == self.SOUNDTESTMENU and SoundEffect[option] then
-      Graphics:text( x+12, y+8, GRAY, SoundEffect[option] )
-    end
-    y, i = y + 16, i + 1
-  end
-  Graphics:drawRect( X-8, 2+Y+((self.option-self.scroll)*16), 7, 7, WHITE )
+  self.controlMenu:draw( 160, 120 )
 end
 
 function TitleState:update(dt)
-  local move = 0
-
-  if Input:isRepeating("up") then move = -1
-  elseif Input:isRepeating("down") then move = 1
-  elseif Input:isRepeating("pageup") then move = -6
-  elseif Input:isRepeating("pagedown") then move = 6
-  elseif Input:isRepeating("home") then move = -9001
-  elseif Input:isRepeating("end") then move = 9001
-  end
-
-  if move ~= 0 then
-    self.option = self.option + move
-    if self.option <= 0 then
-      self.option = 1
-    elseif self.option > #self.currentMenu then
-      self.option = #self.currentMenu
-    end
-    self.scroll = self.option - 3
-    if self.scroll > #self.currentMenu - 6 then
-      self.scroll = #self.currentMenu - 6
-    end
-    if self.scroll < 1 then self.scroll = 1 end
-  else
-    local selection
-    if Input.menu:isClicked() then
-      selection = "_escape"
-    elseif Input.enter:isClicked() then
-      selection = self.currentMenu[self.option]
-    end
-    if selection then
-      if self.currentMenu == self.MAINMENU then
-        if selection == "Start" then
-          Waygame:popState()
-          Waygame:pushState( ExplorerState() )
-        elseif selection == "Options" then
-          self.currentMenu = self.OPTIONSMENU
-          self.option, self.scroll = 1, 1
-        elseif selection == "Quit" or selection == "_escape"  then
-          Waygame:popState()
-        end
-      elseif self.currentMenu == self.OPTIONSMENU then
-        if selection == "Sound Test" then
-          self.currentMenu = self.SOUNDTESTMENU
-          self.option = 1
-        elseif selection == "Back" or selection == "_escape"  then
-          self.currentMenu = self.MAINMENU
-          self.option, self.scroll = 3, 1
-        end
-      elseif self.currentMenu == self.SOUNDTESTMENU then
-        if selection == "Back" or selection == "_escape" then
-          self.currentMenu = self.OPTIONSMENU
-          self.option, self.scroll = 1, 1
-        elseif selection then
-          Sound:playsound( SoundEffect[selection] )
-        end
+  local selection = self.controlMenu:update(dt)
+  if selection then
+    if self.controlMenu.current == self.MAINMENU then
+      if selection == "Start" then
+        Waygame:popState()
+        Waygame:pushState( ExplorerState() )
+      elseif selection == "Options" then
+        self.controlMenu:changeMenu( self.OPTIONSMENU )
+      elseif selection == "Quit" or selection == "_escape"  then
+        Waygame:popState()
+      end
+    elseif self.controlMenu.current == self.OPTIONSMENU then
+      if selection == "Sound Test" then
+        self.controlMenu:changeMenu( self.SOUNDTESTMENU, 1, SoundEffect )
+      elseif selection == "Back" or selection == "_escape"  then
+        self.controlMenu:changeMenu( self.MAINMENU, 3 )
+      end
+    elseif self.controlMenu.current == self.SOUNDTESTMENU then
+      if selection == "Back" or selection == "_escape" then
+        self.controlMenu:changeMenu( self.OPTIONSMENU, 1 )
+      elseif selection then
+        Sound:playsound( SoundEffect[selection] )
       end
     end
   end

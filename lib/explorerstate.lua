@@ -99,13 +99,7 @@ function ExplorerState:drawAmmo()
 end
 
 function ExplorerState:update(dt)
-  if Input.menu:isClicked() then
-    collectgarbage()
-    local count = 0
-    for i, v in pairs(Sprite.weakSpritesTable) do count = count + 1 end
-    print( "Living sprites", count, "Ammo", Waygame.ammo )
-    Waygame:popState()
-  elseif Input.pause:isClicked() then
+  if Input.menu:isClicked() or Input.pause:isClicked() then
     Waygame:pushState( PauseState() )
   else
     self.map:update(dt)
