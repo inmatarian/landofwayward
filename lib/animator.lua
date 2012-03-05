@@ -10,11 +10,13 @@ function Animator.updateAll(dt)
   end
 end
 
-function Animator:init( frames )
+function Animator:init( frames, pattern )
   weakInstanceTable[self]=true
 
   self.frames = frames or {}
-  if frames["default"] then
+  if pattern then
+    self.pattern = pattern
+  elseif frames["default"] then
     self.pattern = "default"
   end
   self.index = 1

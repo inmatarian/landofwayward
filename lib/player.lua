@@ -23,8 +23,7 @@ end
 function Player:init( x, y )
   print("Player.init", self, x, y )
   Player:superinit( self, x, y, 1, 1 )
-  self.frame = 1
-  self.animator = Animator( Player.animFrames )
+  self.animator = Animator( Player.animFrames, "S" )
   Waygame.player = self
 end
 
@@ -100,6 +99,10 @@ function Player:touch( other )
   other:handleTouchedByPlayer( self )
 end
 
+function Player:touchSign( ent, x, y )
+  self.gamestate:handleSign( ent )
+end
+
 function Player:isSpriteNearVisible( other )
   local x, y = self.x, self.y
   local ox, oy = other.x, other.y
@@ -109,7 +112,7 @@ end
 function Player:blockedBy( ent )
   if ent == EntityCode.NOSYLVIAWALL or
      ent == EntityCode.GOOP or
-     ent == EntityCode.SIGN
+     EntityCode.isSign(ent)
   then
     return true
   end

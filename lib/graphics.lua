@@ -125,8 +125,8 @@ function Graphics:loadFont(name)
   love.graphics.setFont(self.font)
 end
 
-function Graphics:setColor( color )
-  love.graphics.setColor( color )
+function Graphics:setColor( color, ... )
+  love.graphics.setColor( color, ... )
 end
 
 function Graphics:drawPixel( x, y, r, g, b )
@@ -148,8 +148,8 @@ function Graphics:drawRect( x, y, w, h, color, lined )
   love.graphics.rectangle( lined and "line" or "fill", x, y, w, h)
 end
 
-function Graphics:fillScreen( color )
-  if color then self:setColor(color) end
+function Graphics:fillScreen( color, ... )
+  if color then self:setColor(color, ...) end
   love.graphics.rectangle( "fill", 0, 0, self.gameWidth, self.gameHeight)
 end
 

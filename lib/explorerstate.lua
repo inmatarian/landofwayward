@@ -1,5 +1,7 @@
 
-ExplorerState = class()
+ExplorerState = class {
+  defaultPlayState = { name = "play" }
+}
 
 do
   local LENGTH = 0.05
@@ -16,11 +18,14 @@ do
 end
 
 function ExplorerState:init()
+  self.state = self.defaultPlayState
+  self.fade = 1.0
   self.id = "maps/testboard.tmx"
   self.map = Map("maps/testboard.tmx")
   local px, py = self.map:locateEntity(EntityCode.SYLVIA)
   px, py = px or 1, py or 1
   self.player = Player( px, py )
+  self.player:setGamestate(self)
   self.camera = Camera(self.player)
   self.map:addSprite(self.player)
   self:loadThings()
@@ -37,7 +42,9 @@ function ExplorerState:loadThings()
       if factory then
         local id = Util.hash( self.id, x, y )
         if not Waygame.deadItems[id] then
-          self.map:addSprite( factory(self, x, y, id) )
+          local thing = factory(self, x, y, id)
+          self.map:addSprite(thing)
+          thing:setGamestate(self)
         end
       end
     end
@@ -68,9 +75,16 @@ function ExplorerState:draw()
 
   if Waygame.debug then
     local pl = self.player
-    Graphics:text( 0, 0, WHITE, string.format("PLY P(%.2f,%.2f) X(%.2f,%.2f) T(%i,%i)", pl.x, pl.y, pl.xexcess, pl.yexcess, pl.xtarget, pl.ytarget) )
+    Graphics:text( 0, 0, WHITE,
+      string.format("PLY P(%.2f,%.2f) X(%.2f,%.2f) T(%i,%i)",
+        pl.x, pl.y, pl.xexcess, pl.yexcess, pl.xtarget, pl.ytarget) )
     local vx, vy = cam:screenTranslate( pl.x, pl.y )
-    Graphics:text( 0, 8, WHITE, string.format("CAM P(%.2f,Y%.2f) S(X%.2f,Y%.2f)", cam.x, cam.y, vx, vy) )
+    Graphics:text( 0, 8, WHITE,
+      string.format("CAM P(%.2f,Y%.2f) S(X%.2f,Y%.2f)", cam.x, cam.y, vx, vy) )
+  end
+
+  if self.fade < 1.0 then
+    Graphics:fillScreen( 0, 0, 0, 255 - (255*self.fade) )
   end
 end
 
@@ -99,6 +113,15 @@ function ExplorerState:drawAmmo()
 end
 
 function ExplorerState:update(dt)
+  local updatefunc = self[string.format("update_%s", self.state.name)]
+  if updatefunc then
+    updatefunc(self, dt)
+  else
+    error("Invalid game state: "..self.state.name)
+  end
+end
+
+function ExplorerState:update_play(dt)
   if Input.menu:isClicked() or Input.pause:isClicked() then
     Waygame:pushState( PauseState() )
   else
@@ -125,3 +148,28 @@ function ExplorerState:updateAmmo(dt)
   self.ammoAnim:update(dt)
 end
 
+function ExplorerState:fadeIn( speed, callback )
+  self.state = { name = "fade", speed = speed or 0.5, callback = callback }
+  self.fade = 0
+end
+
+function ExplorerState:fadeOut( speed, callback )
+  self.state = { name = "fade", speed = speed or -0.5, callback = callback }
+  self.fade = 1.0
+end
+
+function ExplorerState:update_fade(dt)
+  self.fade = self.fade + self.state.speed * dt
+  if self.fade >= 1.0 or self.fade <= 0.0 then
+    self.fade = math.min( math.max( 0.0, self.fade ), 1.0 )
+    local callback = self.state.callback
+    self.state = self.defaultPlayState
+    if callback then callback() end
+  end
+end
+
+function ExplorerState:handleSign(ent)
+  if self.signTable and self.signTable[ent] then
+    print( "Sign", self.signTable[ent] )
+  end
+end

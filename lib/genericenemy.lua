@@ -107,7 +107,7 @@ end
 function GenericEnemy:blockedBy( ent )
   if ent == EntityCode.NOENEMYWALL or
      ent == EntityCode.GOOP or
-     ent == EntityCode.SIGN
+     EntityCode.isSign(ent)
   then
     return true
   end

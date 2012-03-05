@@ -20,6 +20,8 @@ function Sprite:init( x, y, w, h )
   self.w = w or Sprite.w
   self.h = h or Sprite.h
 
+  self.xtarget, self.ytarget = self.x, self.y
+
   Sprite.weakSpritesTable[self]=self
 end
 
@@ -108,8 +110,12 @@ function Sprite:move( dir )
   elseif dir == "E" then xt = floor(xt + 1)
   end
 
-  if self:blockedAt( xt, yt ) then
-    self:thud( dir )
+  local blocked, ent = self:blockedAt( xt, yt )
+  if blocked then
+    self:thud( dir, ent )
+    if EntityCode.isSign(ent) then
+      self:touchSign( ent, xt, yt )
+    end
     if self.tangible then return true end
   end
   local other = self:testCollisionAt( xt, yt )
@@ -126,7 +132,7 @@ end
 
 function Sprite:blockedAt( x, y )
   local ent = self.map:getEntity( x, y )
-  return self:blockedBy( ent )
+  return self:blockedBy( ent ), ent
 end
 
 function Sprite:blockedBy( ent )
@@ -157,6 +163,10 @@ function Sprite:setMap( map )
   if self.tangible then
     self.map:updateSpatialHash( self )
   end
+end
+
+function Sprite:setGamestate( state )
+  self.gamestate = state
 end
 
 function Sprite:getSeekDir( other )
@@ -222,6 +232,7 @@ end
 function Sprite:overlaps( other ) end
 function Sprite:touch( other ) end
 function Sprite:thud( dir ) end
+function Sprite:touchSign( ent, x, y ) end
 function Sprite:handleTouchedByPlayer( player ) end
 function Sprite:handleShotByPlayer() end
 function Sprite:handleShotByEnemy() end

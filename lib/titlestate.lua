@@ -30,7 +30,7 @@ function TitleState:update(dt)
     if self.controlMenu.current == self.MAINMENU then
       if selection == "Start" then
         Waygame:popState()
-        Waygame:pushState( ExplorerState() )
+        Waygame:pushState( PlaceholderState( Testboard_Level ) )
       elseif selection == "Options" then
         self.controlMenu:changeMenu( self.OPTIONSMENU )
       elseif selection == "Quit" or selection == "_escape"  then

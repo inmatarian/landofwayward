@@ -157,6 +157,17 @@ end
 
 -----------------------------------------------------------------------------
 
+function Util.SymbolTable()
+  return setmetatable( {}, {
+    __index = function(E, k)
+      E[k] = k
+      return k
+    end
+  })
+end
+
+-----------------------------------------------------------------------------
+
 Util.Stack = class()
 
 function Util.Stack:init()

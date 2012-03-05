@@ -2,7 +2,7 @@
 -- Class loader
 local Origin = {}
 function Origin.__index( t, k )
-  local f = k:lower()
+  local f = k:lower():gsub("(_)", "/")
   if love.filesystem.isFile(f..".lua") then
     print( "Require", f )
     require( f )
