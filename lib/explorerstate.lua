@@ -1,7 +1,5 @@
 
-ExplorerState = class {
-  defaultPlayState = { name = "play" }
-}
+ExplorerState = class {}
 
 do
   local LENGTH = 0.05
@@ -18,8 +16,6 @@ do
 end
 
 function ExplorerState:init()
-  self.state = self.defaultPlayState
-  self.fade = 1.0
   self.id = "maps/testboard.tmx"
   self.map = Map("maps/testboard.tmx")
   local px, py = self.map:locateEntity(EntityCode.SYLVIA)
@@ -82,10 +78,6 @@ function ExplorerState:draw()
     Graphics:text( 0, 8, WHITE,
       string.format("CAM P(%.2f,Y%.2f) S(X%.2f,Y%.2f)", cam.x, cam.y, vx, vy) )
   end
-
-  if self.fade < 1.0 then
-    Graphics:fillScreen( 0, 0, 0, 255 - (255*self.fade) )
-  end
 end
 
 function ExplorerState:drawAmmo()
@@ -113,15 +105,6 @@ function ExplorerState:drawAmmo()
 end
 
 function ExplorerState:update(dt)
-  local updatefunc = self[string.format("update_%s", self.state.name)]
-  if updatefunc then
-    updatefunc(self, dt)
-  else
-    error("Invalid game state: "..self.state.name)
-  end
-end
-
-function ExplorerState:update_play(dt)
   if Input.menu:isClicked() or Input.pause:isClicked() then
     Waygame:pushState( PauseState() )
   else
@@ -149,23 +132,11 @@ function ExplorerState:updateAmmo(dt)
 end
 
 function ExplorerState:fadeIn( speed, callback )
-  self.state = { name = "fade", speed = speed or 0.5, callback = callback }
-  self.fade = 0
+  Waygame:pushState( FadeState( 0.0, 1.0, speed or 0.5, callback ) )
 end
 
 function ExplorerState:fadeOut( speed, callback )
-  self.state = { name = "fade", speed = speed or -0.5, callback = callback }
-  self.fade = 1.0
-end
-
-function ExplorerState:update_fade(dt)
-  self.fade = self.fade + self.state.speed * dt
-  if self.fade >= 1.0 or self.fade <= 0.0 then
-    self.fade = math.min( math.max( 0.0, self.fade ), 1.0 )
-    local callback = self.state.callback
-    self.state = self.defaultPlayState
-    if callback then callback() end
-  end
+  Waygame:pushState( FadeState( 1.0, 0.0, speed or -0.5, callback ) )
 end
 
 function ExplorerState:handleSign(ent)
@@ -173,3 +144,4 @@ function ExplorerState:handleSign(ent)
     print( "Sign", self.signTable[ent] )
   end
 end
+

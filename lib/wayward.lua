@@ -32,6 +32,24 @@ function Wayward:shutdown()
   print("#end")
 end
 
+function Wayward:stateSend( message, ... )
+  local object = self.stateStack[#self.stateStack]
+  if not object then return end
+  func = object[message]
+  if not func then return end
+  func( object, ... )
+end
+
+function Wayward:stateDownSend( object, message, ... )
+  local N = #self.stateStack
+  while (self.stateStack[N] ~= object) and (N > 0) do N = N - 1 end
+  local downObject = self.stateStack[N-1]
+  if not downObject then return end
+  local func = downObject[message]
+  if not func then return end
+  func( downObject, ... )
+end
+
 function Wayward:update(dt)
   Animator.updateAll(dt)
 
@@ -41,9 +59,7 @@ function Wayward:update(dt)
   if Input:isClicked("f8") then collectgarbage("collect") end
   if Input:isClicked("f10") then love.event.push('q') end
 
-  if #self.stateStack > 0 then
-    self.stateStack[#self.stateStack]:update(dt)
-  end
+  self:stateSend( "update", dt )
 
   Sound:update(dt)
   Graphics:update(dt)
@@ -51,20 +67,18 @@ function Wayward:update(dt)
   if #self.stateStack == 0 then love.event.push('q') end
 end
 
+function Wayward:downupdate( object, dt )
+  self:stateDownSend( object, "update", dt )
+end
+
 function Wayward:draw()
   Graphics:start()
-  if #self.stateStack > 0 then
-    self.stateStack[#self.stateStack]:draw()
-  end
+  self:stateSend( "draw" )
   Graphics:stop(self.debug)
 end
 
-function Wayward:downdraw( state )
-  local N = #self.stateStack
-  while self.stateStack[N] ~= state and N > 0 do N = N - 1 end
-  if self.stateStack[N-1] then
-    self.stateStack[N-1]:draw()
-  end
+function Wayward:downdraw( object )
+  self:stateDownSend( object, "draw" )
 end
 
 function Wayward:keypressed(key, unicode)
@@ -85,12 +99,16 @@ end
 
 function Wayward:pushState( state )
   print( "State Machine Push", state )
+  self:stateSend( "statePause" )
   table.insert( self.stateStack, state )
+  self:stateSend( "stateEnter" )
 end
 
 function Wayward:popState()
   print( "State Machine", state )
+  self:stateSend( "stateExit" )
   table.remove( self.stateStack )
+  self:stateSend( "stateResume" )
 end
 
 -- True if any of the keys is pressed==1

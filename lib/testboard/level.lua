@@ -8,7 +8,9 @@ Testboard_Level.signTable = {
 
 function Testboard_Level:init()
   Testboard_Level:superinit(self)
-  self:fadeIn()
 end
 
+function Testboard_Level:stateEnter()
+  self:fadeIn()
+end
 

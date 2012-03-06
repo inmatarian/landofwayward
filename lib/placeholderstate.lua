@@ -1,8 +1,11 @@
 
 PlaceholderState = class()
 
-function PlaceholderState:init( nextStateClass )
-  self.nextState = nextStateClass
+function PlaceholderState:init( nextStateClass, ... )
+  local arg = {...}
+  self.nextState = function()
+    return nextStateClass( unpack(arg) )
+  end
 end
 
 function PlaceholderState:draw() end
