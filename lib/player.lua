@@ -4,19 +4,20 @@ do
   local LENGTH = 0.25
   local SHOTLEN = 0.1
   local FREEZE = Animator.FREEZE
+  local CODE = SpriteCode.SYLVIA
   Player.animFrames = {
-    N = { { 1, LENGTH }, { 2, LENGTH } },
-    S = { { 3, LENGTH }, { 4, LENGTH } },
-    W = { { 5, LENGTH }, { 6, LENGTH } },
-    E = { { 7, LENGTH }, { 8, LENGTH } },
-    NHold = { { 1, FREEZE } },
-    SHold = { { 3, FREEZE } },
-    WHold = { { 5, FREEZE } },
-    EHold = { { 7, FREEZE } },
-    NShoot = { { 2, SHOTLEN }, { 1, FREEZE } },
-    SShoot = { { 4, SHOTLEN }, { 3, FREEZE } },
-    WShoot = { { 6, SHOTLEN }, { 5, FREEZE } },
-    EShoot = { { 8, SHOTLEN }, { 7, FREEZE } },
+    N = { { CODE+0, LENGTH }, { CODE+1, LENGTH } },
+    S = { { CODE+2, LENGTH }, { CODE+3, LENGTH } },
+    W = { { CODE+4, LENGTH }, { CODE+5, LENGTH } },
+    E = { { CODE+6, LENGTH }, { CODE+7, LENGTH } },
+    NHold = { { CODE+0, FREEZE } },
+    SHold = { { CODE+2, FREEZE } },
+    WHold = { { CODE+4, FREEZE } },
+    EHold = { { CODE+6, FREEZE } },
+    NShoot = { { CODE+1, SHOTLEN }, { CODE+0, FREEZE } },
+    SShoot = { { CODE+3, SHOTLEN }, { CODE+2, FREEZE } },
+    WShoot = { { CODE+5, SHOTLEN }, { CODE+4, FREEZE } },
+    EShoot = { { CODE+7, SHOTLEN }, { CODE+6, FREEZE } },
   }
 end
 

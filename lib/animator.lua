@@ -40,6 +40,10 @@ function Animator:resetPattern( name )
   self:setPattern(name)
 end
 
+function Animator:tryPattern( name )
+  if self.frames[name] then self:setPattern(name) end
+end
+
 function Animator:update(dt)
   if not self.pattern then return end
   self.clock = self.clock + dt

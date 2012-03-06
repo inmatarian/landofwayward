@@ -8,6 +8,7 @@ Testboard_Level.signTable = {
 
 function Testboard_Level:init()
   Testboard_Level:superinit(self)
+  self.erhardt = Testboard_Erhardt( self.map )
 end
 
 function Testboard_Level:stateEnter()

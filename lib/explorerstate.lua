@@ -16,6 +16,7 @@ do
 end
 
 function ExplorerState:init()
+  self.hp = 1
   self.id = "maps/testboard.tmx"
   self.map = Map("maps/testboard.tmx")
   local px, py = self.map:locateEntity(EntityCode.SYLVIA)
@@ -68,6 +69,7 @@ function ExplorerState:draw()
   self.map:draw(cam)
 
   self:drawAmmo()
+  self:drawHealth()
 
   if Waygame.debug then
     local pl = self.player
@@ -104,6 +106,26 @@ function ExplorerState:drawAmmo()
   end
 end
 
+function ExplorerState:drawHealth()
+  local x, y = 2, Graphics.gameHeight - 9
+  local hp = math.max(0, math.min(math.floor(self.hp), 100))
+  local full = math.floor(hp/5)
+  local half = ((hp-full*5) >= 2) and true or false
+  local i = 0
+  while i < full do
+    Graphics:drawSprite( x, y, SpriteCode.GREENBAR )
+    x, i = x + 5, i + 1
+  end
+  if half then
+    Graphics:drawSprite( x, y, SpriteCode.HALFBAR )
+    x, i = x + 5, i + 1
+  end
+  while i < 20 do
+    Graphics:drawSprite( x, y, SpriteCode.EMPTYBAR )
+    x, i = x + 5, i + 1
+  end
+end
+
 function ExplorerState:update(dt)
   if Input.menu:isClicked() or Input.pause:isClicked() then
     Waygame:pushState( PauseState() )
@@ -112,6 +134,8 @@ function ExplorerState:update(dt)
     self.camera:update(dt)
     self:updateAmmo(dt)
   end
+  self.hp = self.hp + dt * 5
+  if self.hp > 125 then self.hp = 0 end
 end
 
 function ExplorerState:updateAmmo(dt)

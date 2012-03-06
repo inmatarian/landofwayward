@@ -2,7 +2,7 @@ local D=1
 
 SpriteCode = {
   SYLVIA = D,
-  ERHARD = D+8,
+  ERHARDT = D+8,
   GRAVEN = D+16,
   GRAVENGRAY = D+24,
   VEX = D+32,
@@ -53,10 +53,10 @@ SpriteCode = {
 
   EMPTYBAR = D+288,
   HALFBAR = D+289,
-  BLUE = D+290,
-  CYAN = D+291,
-  GREEN = D+292,
-  YELLOW = D+293,
-  RED = D+294,
+  BLUEBAR = D+290,
+  CYANBAR = D+291,
+  GREENBAR = D+292,
+  YELLOWBAR = D+293,
+  REDBAR = D+294,
 }
 
