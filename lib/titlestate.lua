@@ -20,7 +20,7 @@ function TitleState:init()
 end
 
 function TitleState:draw()
-  Graphics:text( 16, 16, WHITE, "The Land Of Wayward" )
+  Graphics:text( 16, 16, Palette.WHITE, "The Land Of Wayward" )
   self.controlMenu:draw( 160, 120 )
 end
 

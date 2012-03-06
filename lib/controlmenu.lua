@@ -20,13 +20,13 @@ function ControlMenu:draw( x, y )
   local i, N = self.scroll, self.scroll + 7
   while i < N and i <= #self.current do
     local option = self.current[i]
-    Graphics:text( x, y, WHITE, option )
+    Graphics:text( x, y, Palette.WHITE, option )
     if self.submenu and self.submenu[option] then
-      Graphics:text( x+12, y+8, GRAY, self.submenu[option] )
+      Graphics:text( x+12, y+8, Palette.GRAY, self.submenu[option] )
     end
     y, i = y + 16, i + 1
   end
-  Graphics:drawRect( X-8, 2+Y+((self.option-self.scroll)*16), 7, 7, WHITE )
+  Graphics:drawRect( X-8, 2+Y+((self.option-self.scroll)*16), 7, 7, Palette.WHITE )
 end
 
 function ControlMenu:update(dt)

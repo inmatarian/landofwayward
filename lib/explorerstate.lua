@@ -64,7 +64,7 @@ do
 end
 
 function ExplorerState:draw()
-  Graphics:setColor( WHITE )
+  Graphics:resetColor()
   local cam = self.camera
   self.map:draw(cam)
 
@@ -73,11 +73,11 @@ function ExplorerState:draw()
 
   if Waygame.debug then
     local pl = self.player
-    Graphics:text( 0, 0, WHITE,
+    Graphics:text( 0, 0, Palette.WHITE,
       string.format("PLY P(%.2f,%.2f) X(%.2f,%.2f) T(%i,%i)",
         pl.x, pl.y, pl.xexcess, pl.yexcess, pl.xtarget, pl.ytarget) )
     local vx, vy = cam:screenTranslate( pl.x, pl.y )
-    Graphics:text( 0, 8, WHITE,
+    Graphics:text( 0, 8, Palette.WHITE,
       string.format("CAM P(%.2f,Y%.2f) S(X%.2f,Y%.2f)", cam.x, cam.y, vx, vy) )
   end
 end
@@ -165,7 +165,7 @@ end
 
 function ExplorerState:handleSign(ent)
   if self.signTable and self.signTable[ent] then
-    print( "Sign", self.signTable[ent] )
+    Waygame:pushState( SignState(self.signTable[ent]) )
   end
 end
 

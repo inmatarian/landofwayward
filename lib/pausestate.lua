@@ -4,7 +4,7 @@ PauseState.CURTAIN = { 0, 8, 16, 192 }
 PauseState.MAINMENU = { "Resume", "Options", "Save", "Reset", "Quit" }
 
 function PauseState:init()
-  self.text = GrowingText("center", "center", WHITE, "Paused")
+  self.text = GrowingText("center", "center", Palette.WHITE, "Paused")
   self.controlMenu = ControlMenu( self.MAINMENU )
 end
 

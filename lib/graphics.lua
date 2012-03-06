@@ -17,9 +17,9 @@ Graphics = {
 Graphics.xScale = math.floor(love.graphics.getWidth() / Graphics.gameWidth)
 Graphics.yScale = math.floor(love.graphics.getHeight() / Graphics.gameHeight)
 
-WHITE = Util.strict { 255, 255, 255, 255 }
-GRAY = Util.strict { 144, 144, 144, 255 }
-BLACK = Util.strict { 0, 0, 0, 255 }
+local WHITE = Util.strict { 255, 255, 255, 255 }
+local GRAY = Util.strict { 144, 144, 144, 255 }
+local BLACK = Util.strict { 0, 0, 0, 255 }
 
 function Graphics:init()
   love.graphics.setColorMode("modulate")
@@ -123,6 +123,10 @@ function Graphics:loadFont(name)
   self.font = love.graphics.newImageFont(fontimage, self.fontset)
   self.font:setLineHeight( fontimage:getHeight() )
   love.graphics.setFont(self.font)
+end
+
+function Graphics:resetColor()
+  love.graphics.setColor( 255, 255, 255, 255 )
 end
 
 function Graphics:setColor( color, ... )
