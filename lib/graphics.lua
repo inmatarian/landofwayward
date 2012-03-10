@@ -17,6 +17,18 @@ Graphics = {
 Graphics.xScale = math.floor(love.graphics.getWidth() / Graphics.gameWidth)
 Graphics.yScale = math.floor(love.graphics.getHeight() / Graphics.gameHeight)
 
+Graphics.resolutions = {
+  { 320, 240 },
+  { 640, 480 },
+  { 800, 480 },
+  { 800, 600 },
+  { 960, 720 },
+  { 1280, 720 },
+  { 1366, 768 },
+  { 1280, 960 },
+  { 1920, 1080 },
+}
+
 local WHITE = Util.strict { 255, 255, 255, 255 }
 local GRAY = Util.strict { 144, 144, 144, 255 }
 local BLACK = Util.strict { 0, 0, 0, 255 }
@@ -47,6 +59,15 @@ function Graphics:updateMEM()
 end
 
 function Graphics:start()
+  local winWidth = love.graphics.getWidth()
+  local winHeight = love.graphics.getHeight()
+  local width = self.gameWidth * self.xScale
+  local height = self.gameHeight * self.yScale
+  local x = (winWidth-width)/2
+  local y = (winHeight-height)/2
+
+  love.graphics.setScissor( x, y, width, height )
+  love.graphics.translate( x, y )
   love.graphics.scale( Graphics.xScale, Graphics.yScale )
   love.graphics.setLine( Graphics.xScale, "smooth" )
   love.graphics.setColor( 255, 255, 255 )
@@ -180,8 +201,24 @@ function Graphics:changeScale( size )
 end
 
 function Graphics:toggleScale()
-  local size = (self.xScale % 4) + 1
-  self:changeScale( size )
+  local winWidth = love.graphics.getWidth()
+  local winHeight = love.graphics.getHeight()
+  local id = 1
+  for i, v in pairs(self.resolutions) do
+    if winWidth >= v[1] and winHeight >= v[2] then id = i end
+  end
+  id = (id % #self.resolutions) + 1
+  local mode = self.resolutions[id]
+  self:setResolution( mode[1], mode[2] )
+end
+
+function Graphics:setResolution( width, height )
+  love.graphics.setMode( width, height, false )
+  local xscale = math.floor(love.graphics.getWidth() / Graphics.gameWidth)
+  local yscale = math.floor(love.graphics.getHeight() / Graphics.gameHeight)
+  self.xScale = math.min( xscale, yscale )
+  self.yScale = self.xScale
+  print( "New Display Mode", width, height, self.xScale )
 end
 
 function Graphics:text( x, y, color, str )
