@@ -120,3 +120,42 @@ function Player:blockedBy( ent )
   return GenericEnemy:super().blockedBy( self, ent )
 end
 
+function Player:steppedOn( ent, x, y )
+  if EntityCode.isTrigger( ent ) then
+    self.gamestate:handleTrigger( ent, x, y )
+  elseif EntityCode.isExit( ent ) then
+    self.gamestate:handleExit( ent, x, y )
+  elseif EntityCode.isTeleport( ent ) then
+    self:handleTeleport(ent)
+  end
+end
+
+function Player:handleTeleport( ent )
+  local newEnt
+  if ((ent - EntityCode.TELEPORT1) % 2) == 1 then
+    newEnt = ent - 1
+  else
+    newEnt = ent + 1
+  end
+  local x, y = self.map:locateEntity( newEnt )
+  if x and y then self:setPos( x, y ) end
+end
+
+function Player:handlePortal( dir, x, y )
+  local dx, dy
+  if dir == "N" then dx, dy = 0, -1
+  elseif dir == "S" then dx, dy = 0, 1
+  elseif dir == "W" then dx, dy = -1, 0
+  elseif dir == "E" then dx, dy = 1, 0
+  end
+
+  local ent
+  repeat
+    x, y = x + dx, y + dy
+    ent = self.map:getEntity(x, y)
+  until ent == EntityCode.PORTAL
+
+  self:setPos( x, y )
+end
+
+

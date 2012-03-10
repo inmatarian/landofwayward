@@ -2,12 +2,20 @@
 Graphics = {
   gameWidth = 320,
   gameHeight = 240,
-  tileBounds = Util.strict {},
   tileFilename = "gfx/tileset.png",
   spriteFilename = "gfx/sprites.png",
   fontFilename = "gfx/wayfont.png",
+  logoFilenames = {
+    planetbadness = "gfx/planetbadness.png"
+  },
   tiles = {},
   sprites = {},
+  tileBounds = Util.strict {},
+  spriteMeterBounds = Util.strict {
+    [SpriteCode.LIFEBAR]  = { x=  0, y=493, w=103, h=9, fx=104, fy=493, g=2 },
+    [SpriteCode.ENEMYBAR] = { x=  0, y=503, w=103, h=9, fx=104, fy=503, g=2 },
+    [SpriteCode.AUDIOBAR] = { x=208, y=493, w= 42, h=3, fx=208, fy=497, g=1 },
+  },
   tilesDrawn = 0,
   spritesDrawn = 0,
   fps = 0,
@@ -40,6 +48,7 @@ function Graphics:init()
   self:specialLoadImage("gfx/wayward0.png")
   -- self:loadTileset(self.tileFilename)
   self:loadSprites(self.spriteFilename)
+  self:loadAllLogoImages()
 
   self.fpsClock = Util.CallbackTimer(1, Util.MethodBinding(self, self.updateFPS))
   self.memClock = Util.CallbackTimer(1, Util.MethodBinding(self, self.updateMEM))
@@ -96,6 +105,10 @@ function Graphics:loadTileset(name)
   end
 end
 
+function Graphics:addSprite( id, x, y, w, h, sw, sh )
+  self.sprites[id] = love.graphics.newQuad(x, y, w, h, sw, sh)
+end
+
 function Graphics:loadSprites(name)
   self.spriteImage = love.graphics.newImage(name)
   self.spriteImage:setFilter("nearest", "nearest")
@@ -103,9 +116,30 @@ function Graphics:loadSprites(name)
   local i = 1
   for y = 0, sh-1, 16 do
     for x = 0, sw-1, 16 do
-      self.sprites[i] = love.graphics.newQuad(x, y, 16, 16, sw, sh)
+      self:addSprite( i, x, y, 16, 16, sw, sh )
       i = i + 1
     end
+  end
+
+  for id, b in pairs( self.spriteMeterBounds ) do
+    self:addSprite( id, b.x, b.y, b.w, b.h, sw, sh )
+    print("Added sprite", id, b.x, b.y, b.w, b.h, sw, sh )
+    for i = 1, b.w-(b.g*2) do
+      self:addSprite( id+i, b.fx+b.g+(i-1), b.fy, 1, b.h, sw, sh )
+    end
+  end
+end
+
+function Graphics:loadLogoImage(name)
+  local image = love.graphics.newImage(name)
+  image:setFilter("nearest", "nearest")
+  return image
+end
+
+function Graphics:loadAllLogoImages()
+  self.logos = {}
+  for i, v in pairs(self.logoFilenames) do
+    self.logos[i] = self:loadLogoImage(v)
   end
 end
 
@@ -154,8 +188,8 @@ function Graphics:setColor( color, ... )
   love.graphics.setColor( color, ... )
 end
 
-function Graphics:drawPixel( x, y, r, g, b )
-  love.graphics.setColor( r, g, b )
+function Graphics:drawPixel( x, y, color, ... )
+  love.graphics.setColor( color, ... )
   love.graphics.rectangle( "fill", x, y, 1, 1 )
 end
 
@@ -185,6 +219,21 @@ function Graphics:drawSprite( x, y, idx )
   love.graphics.drawq( self.spriteImage, quad,
     math.floor(x*ys)/ys, math.floor(y*ys)/ys )
   self.spritesDrawn = self.spritesDrawn + 1
+end
+
+function Graphics:drawLogo( x, y, name, color )
+  if color then self:setColor(color) end
+  local logo = self.logos[name]
+  if not logo then return end
+  if x == "center" then
+    local w = logo:getWidth()
+    x = math.floor((self.gameWidth - w) / 2)
+  end
+  if y == "center" then
+    local h = logo:getHeight()
+    y = math.floor((self.gameHeight - h) / 2)
+  end
+  love.graphics.draw( logo, x, y )
 end
 
 function Graphics:saveScreenshot()
@@ -229,5 +278,27 @@ function Graphics:text( x, y, color, str )
     love.graphics.print(c, x, y)
     x = x + self.font:getWidth(c) - 2
   end
+end
+
+function Graphics:drawMeterBar( x, y, id, val, direction )
+  direction = direction or "right"
+  local meter = self.spriteMeterBounds[id]
+  local width = meter.w
+  val = math.max(0, math.min(val, 100))
+
+  local total = math.floor((val/100)*width)
+
+  self:drawSprite( x, y, id )
+  if direction ~= "right" then
+    for i = 1, total do
+      self:drawSprite( x+meter.g+(i-1), y, id + i )
+    end
+  else
+    -- TODO: this code isn't finished.
+    for i = total, 1, -1 do
+      self:drawSprite( x+width-i, y, id + i )
+    end
+  end
+  self:drawPixel( x, y, WHITE )
 end
 

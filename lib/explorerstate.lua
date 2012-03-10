@@ -107,23 +107,8 @@ function ExplorerState:drawAmmo()
 end
 
 function ExplorerState:drawHealth()
-  local x, y = 2, Graphics.gameHeight - 9
-  local hp = math.max(0, math.min(math.floor(self.hp), 100))
-  local full = math.floor(hp/5)
-  local half = ((hp-full*5) >= 2) and true or false
-  local i = 0
-  while i < full do
-    Graphics:drawSprite( x, y, SpriteCode.GREENBAR )
-    x, i = x + 5, i + 1
-  end
-  if half then
-    Graphics:drawSprite( x, y, SpriteCode.HALFBAR )
-    x, i = x + 5, i + 1
-  end
-  while i < 20 do
-    Graphics:drawSprite( x, y, SpriteCode.EMPTYBAR )
-    x, i = x + 5, i + 1
-  end
+  local x, y = 4, Graphics.gameHeight - 13
+  Graphics:drawMeterBar( x, y, SpriteCode.LIFEBAR, self.hp, "left" )
 end
 
 function ExplorerState:update(dt)
@@ -166,6 +151,22 @@ end
 function ExplorerState:handleSign(ent)
   if self.signTable and self.signTable[ent] then
     Waygame:pushState( SignState(self.signTable[ent]) )
+  else
+    print("Unhandled sign", ent)
   end
+end
+
+function ExplorerState:handleTrigger( ent, x, y )
+  local code = 1 + (ent - EntityCode.TRIGGER1)
+  local handler = string.format("handleTrigger%i", code)
+  if self[handler] then
+    self[handler](self, x, y)
+  else
+    print("Unhandled trigger", ent)
+  end
+end
+
+function ExplorerState:handleExit( ent, x, y )
+  print( "Exit", ent, x, y )
 end
 

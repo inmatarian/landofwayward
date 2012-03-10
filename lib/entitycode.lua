@@ -43,12 +43,16 @@ enum( 112, E.TRIGGER1, E.TRIGGER2, E.TRIGGER3, E.TRIGGER4, E.TRIGGER5,
            E.TRIGGER6, E.TRIGGER7, E.TRIGGER8 )
 enum( 120, E.SPIKE, E.FIRE, E.LAVA, E.ICE, E.WATERN, E.WATERS, E.WATERW, E.WATERE )
 enum( 128, E.NOENEMYWALL, E.NOSYLVIAWALL, E.GOOP )
+enum( 132, E.PORTAL )
 enum( 160, E.SIGN1, E.SIGN2, E.SIGN3, E.SIGN4, E.SIGN5, E.SIGN6, E.SIGN7, E.SIGN8, E.SIGN9,
            E.SIGN10, E.SIGN11, E.SIGN12, E.SIGN13, E.SIGN14, E.SIGN15, E.SIGN16 )
 enum( 176, E.TELEPORT1, E.TELEPORT2, E.TELEPORT3, E.TELEPORT4, E.TELEPORT5,
            E.TELEPORT6, E.TELEPORT7, E.TELEPORT8, E.TELEPORT9, E.TELEPORT10,
            E.TELEPORT11, E.TELEPORT12, E.TELEPORT13, E.TELEPORT14, E.TELEPORT15,
            E.TELEPORT16 )
+enum( 192, E.EXIT1, E.EXIT2, E.EXIT3, E.EXIT4, E.EXIT5, E.EXIT6, E.EXIT7,
+           E.EXIT8, E.EXIT9, E.EXIT10, E.EXIT11, E.EXIT12, E.EXIT13, E.EXIT14,
+           E.EXIT15, E.EXIT16 )
 
 function EntityCode.isSign( ent )
   return (ent >= EntityCode.SIGN1) and (ent <= EntityCode.SIGN16)
@@ -57,4 +61,16 @@ end
 function EntityCode.isTeleport( ent )
   return (ent >= EntityCode.TELEPORT1) and (ent <= EntityCode.TELEPORT16)
 end
+
+function EntityCode.isTrigger( ent )
+  return (ent >= EntityCode.TRIGGER1) and (ent <= EntityCode.TRIGGER8)
+end
+
+function EntityCode.isExit( ent )
+  return (ent >= EntityCode.EXIT1) and (ent <= EntityCode.EXIT16)
+end
+
+
+
+
 

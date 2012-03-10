@@ -74,7 +74,7 @@ function LogoState:draw()
     end
   end
   if self.textVis then
-    Graphics:text( "center", "center", Palette.WHITE, "Planet Badness" )
+    Graphics:drawLogo( "center", "center", "planetbadness", Palette.BLACK )
   end
 end
 

@@ -88,6 +88,13 @@ function Sprite:updatePosition(dt)
   if self.tangible then
     self.map:updateSpatialHash( self, oldx, oldy, self.w, self.h )
   end
+
+  if not self.moving then
+    local ent = self.map:getEntity( nx, ny )
+    if ent > EntityCode.BLOCK then
+      self:steppedOn( ent, nx, ny )
+    end
+  end
 end
 
 function Sprite:setPos( newx, newy )
@@ -115,6 +122,8 @@ function Sprite:move( dir )
     self:thud( dir, ent )
     if EntityCode.isSign(ent) then
       self:touchSign( ent, xt, yt )
+    elseif ent == EntityCode.PORTAL then
+      self:handlePortal( dir, xt, yt )
     end
     if self.tangible then return true end
   end
@@ -136,7 +145,11 @@ function Sprite:blockedAt( x, y )
 end
 
 function Sprite:blockedBy( ent )
-  if ent == EntityCode.BLOCK then return true end
+  if ent == EntityCode.BLOCK or
+     ent == EntityCode.PORTAL
+  then
+    return true
+  end
 end
 
 function Sprite:testCollisionAt( x, y )
@@ -236,4 +249,6 @@ function Sprite:touchSign( ent, x, y ) end
 function Sprite:handleTouchedByPlayer( player ) end
 function Sprite:handleShotByPlayer() end
 function Sprite:handleShotByEnemy() end
+function Sprite:steppedOn( ent, x, y ) end
+function Sprite:handlePortal( ent, x, y ) end
 
