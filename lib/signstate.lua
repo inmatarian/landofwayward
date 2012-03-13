@@ -7,7 +7,17 @@ SignState.x = Graphics.gameWidth / 2 - SignState.w / 2
 SignState.y = Graphics.gameHeight / 2 - SignState.h / 2
 
 function SignState:init( text )
-  self.text = text
+  self:setupText( text )
+end
+
+function SignState:setupText( text )
+  self.lines = Util.stringSplit( text, '\n' )
+  local len = 0
+  for _, v in ipairs(self.lines) do
+    len = math.max( len, #v )
+  end
+  self.tx = 160 - (len * 4)
+  self.ty = 120 - (#self.lines * 6)
 end
 
 function SignState:update(dt)
@@ -16,26 +26,11 @@ function SignState:update(dt)
   end
 end
 
-function SignState:drawBorder(x, y, w, h, color)
-  Graphics:setColor(color)
-  for i = 16, SignState.w-32, 16 do
-    Graphics:drawSprite( x+i, y, SpriteCode.WINDOWU )
-    Graphics:drawSprite( x+i, y+h-16, SpriteCode.WINDOWD )
-  end
-  for i = 16, SignState.h-32, 16 do
-    Graphics:drawSprite( x, y+i, SpriteCode.WINDOWL )
-    Graphics:drawSprite( x+w-16, y+i, SpriteCode.WINDOWR )
-  end
-  Graphics:drawSprite( x, y, SpriteCode.WINDOWUL )
-  Graphics:drawSprite( x+w-16, y, SpriteCode.WINDOWUR )
-  Graphics:drawSprite( x, y+h-16, SpriteCode.WINDOWDL )
-  Graphics:drawSprite( x+w-16, y+h-16, SpriteCode.WINDOWDR )
-end
-
 function SignState:draw()
   Waygame:downdraw(self)
-  Graphics:drawRect( self.x+4, self.y+4, self.w-8, self.h-8, Palette.BROWN )
-  self:drawBorder( self.x, self.y, self.w, self.h, Palette.BROWN )
-  Graphics:text( "center", "center", Palette.WHITE, self.text )
+  Graphics:drawFixedSign( self.x, self.y, self.w, self.h, Palette.BROWN )
+  for i = 1, #self.lines do
+    Graphics:text( self.tx, self.ty + ((i-1)*12), Palette.WHITE, self.lines[i] )
+  end
 end
 

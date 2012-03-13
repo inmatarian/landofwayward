@@ -155,6 +155,24 @@ function Util.base64decode( str )
   return table.concat(d)
 end
 
+function Util.stringSplit( text, sep )
+  local sep, fields = sep or ":", {}
+  local pattern = string.format("([^%s]+)", sep)
+  text:gsub(pattern, function(c) fields[#fields+1] = c end)
+  return fields
+end
+
+function Util.wordwrapLine( text, margin )
+  local here = 1
+  return text:gsub( "(%s)()(%S+)()",
+    function(sp, st, word, fi)
+      if (fi - here) > margin then
+        here = st
+        return "\n" .. word
+      end
+    end )
+end
+
 -----------------------------------------------------------------------------
 
 function Util.SymbolTable()

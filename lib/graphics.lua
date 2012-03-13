@@ -302,3 +302,25 @@ function Graphics:drawMeterBar( x, y, id, val, direction )
   self:drawPixel( x, y, WHITE )
 end
 
+function Graphics:drawFixedSign( x, y, w, h, color )
+  self:setColor(color)
+  love.graphics.rectangle( "fill", x+4, y+4, w-8, h-8 )
+  local U, D = SpriteCode.WINDOWU, SpriteCode.WINDOWD
+  local L, R = SpriteCode.WINDOWL, SpriteCode.WINDOWR
+  for i = 16, SignState.w-32, 16 do
+    self:drawSprite( x+i, y, U )
+    self:drawSprite( x+i, y+h-16, D )
+  end
+  for i = 16, SignState.h-32, 16 do
+    self:drawSprite( x, y+i, L )
+    self:drawSprite( x+w-16, y+i, R )
+  end
+  self:drawSprite( x, y, SpriteCode.WINDOWUL )
+  self:drawSprite( x+w-16, y, SpriteCode.WINDOWUR )
+  self:drawSprite( x, y+h-16, SpriteCode.WINDOWDL )
+  self:drawSprite( x+w-16, y+h-16, SpriteCode.WINDOWDR )
+end
+
+
+
+
