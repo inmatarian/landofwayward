@@ -1,4 +1,6 @@
 
+local floor = math.floor
+
 Sprite = class {
   x = 0, y = 0, w = 1, h = 1;
   frame = 0;
@@ -102,13 +104,11 @@ function Sprite:setPos( newx, newy )
 end
 
 function Sprite:intPos()
-  local floor = math.floor
   return floor(self.x), floor(self.y)
 end
 
 function Sprite:move( dir )
   if self.moving then return end
-  local floor = math.floor
   local xt, yt = self.x, self.y
 
   if dir == "N" then yt = floor(yt - 1)

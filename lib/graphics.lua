@@ -1,4 +1,6 @@
 
+local floor, min, max = math.floor, math.min, math.max
+
 Graphics = {
   gameWidth = 320,
   gameHeight = 240,
@@ -22,8 +24,8 @@ Graphics = {
   mem = 0,
   fontset = [==[ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~]==],
 }
-Graphics.xScale = math.floor(love.graphics.getWidth() / Graphics.gameWidth)
-Graphics.yScale = math.floor(love.graphics.getHeight() / Graphics.gameHeight)
+Graphics.xScale = floor(love.graphics.getWidth() / Graphics.gameWidth)
+Graphics.yScale = floor(love.graphics.getHeight() / Graphics.gameHeight)
 
 Graphics.resolutions = {
   { 320, 240 },
@@ -198,7 +200,7 @@ function Graphics:drawTile( x, y, tile )
   if not quad then return end
   local xs, ys = self.xScale, self.yScale
   love.graphics.drawq( self.tilesetImage, quad,
-    math.floor(x*ys)/ys, math.floor(y*ys)/ys )
+    floor(x*ys)/ys, floor(y*ys)/ys )
   self.tilesDrawn = self.tilesDrawn + 1
 end
 
@@ -217,7 +219,7 @@ function Graphics:drawSprite( x, y, idx )
   if not quad then return end
   local xs, ys = self.xScale, self.yScale
   love.graphics.drawq( self.spriteImage, quad,
-    math.floor(x*ys)/ys, math.floor(y*ys)/ys )
+    floor(x*ys)/ys, floor(y*ys)/ys )
   self.spritesDrawn = self.spritesDrawn + 1
 end
 
@@ -227,11 +229,11 @@ function Graphics:drawLogo( x, y, name, color )
   if not logo then return end
   if x == "center" then
     local w = logo:getWidth()
-    x = math.floor((self.gameWidth - w) / 2)
+    x = floor((self.gameWidth - w) / 2)
   end
   if y == "center" then
     local h = logo:getHeight()
-    y = math.floor((self.gameHeight - h) / 2)
+    y = floor((self.gameHeight - h) / 2)
   end
   love.graphics.draw( logo, x, y )
 end
@@ -263,9 +265,9 @@ end
 
 function Graphics:setResolution( width, height )
   love.graphics.setMode( width, height, false )
-  local xscale = math.floor(love.graphics.getWidth() / Graphics.gameWidth)
-  local yscale = math.floor(love.graphics.getHeight() / Graphics.gameHeight)
-  self.xScale = math.min( xscale, yscale )
+  local xscale = floor(love.graphics.getWidth() / Graphics.gameWidth)
+  local yscale = floor(love.graphics.getHeight() / Graphics.gameHeight)
+  self.xScale = min( xscale, yscale )
   self.yScale = self.xScale
   print( "New Display Mode", width, height, self.xScale )
 end
@@ -282,24 +284,21 @@ end
 
 function Graphics:drawMeterBar( x, y, id, val, direction )
   direction = direction or "right"
+  val = max(0, min(val, 100))
   local meter = self.spriteMeterBounds[id]
-  local width = meter.w
-  val = math.max(0, math.min(val, 100))
-
-  local total = math.floor((val/100)*width)
+  local gutter = meter.g
+  local width = meter.w - gutter
+  local left, right
+  if direction ~= "right" then
+    left, right = 0, floor(val*width/100)-1
+  else
+    left, right = floor((100-val)*width/100), width
+  end
 
   self:drawSprite( x, y, id )
-  if direction ~= "right" then
-    for i = 1, total do
-      self:drawSprite( x+meter.g+(i-1), y, id + i )
-    end
-  else
-    -- TODO: this code isn't finished.
-    for i = total, 1, -1 do
-      self:drawSprite( x+width-i, y, id + i )
-    end
+  for i = left, right do
+    self:drawSprite( x+gutter+i, y, id+1+i )
   end
-  self:drawPixel( x, y, WHITE )
 end
 
 function Graphics:drawFixedSign( x, y, w, h, color )
@@ -307,11 +306,11 @@ function Graphics:drawFixedSign( x, y, w, h, color )
   love.graphics.rectangle( "fill", x+4, y+4, w-8, h-8 )
   local U, D = SpriteCode.WINDOWU, SpriteCode.WINDOWD
   local L, R = SpriteCode.WINDOWL, SpriteCode.WINDOWR
-  for i = 16, SignState.w-32, 16 do
+  for i = 16, w-32, 16 do
     self:drawSprite( x+i, y, U )
     self:drawSprite( x+i, y+h-16, D )
   end
-  for i = 16, SignState.h-32, 16 do
+  for i = 16, h-32, 16 do
     self:drawSprite( x, y+i, L )
     self:drawSprite( x+w-16, y+i, R )
   end

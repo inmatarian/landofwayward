@@ -199,6 +199,7 @@ function Map:removeSprite( sprite )
   if sprite.tangible then
     self.spatialHash:remove(sprite.x, sprite.y, sprite.w, sprite.h, sprite)
   end
+  sprite.deleted = true
 end
 
 function Map:update(dt)
@@ -206,7 +207,8 @@ function Map:update(dt)
     self.spriteQueue:enqueue(self.sprites[i])
   end
   while not self.spriteQueue:isEmpty() do
-    self.spriteQueue:dequeue():update(dt)
+    local sprite = self.spriteQueue:dequeue()
+    if not sprite.deleted then sprite:update(dt) end
   end
   table.sort( self.sprites, Sprite.sortingFunction )
 end

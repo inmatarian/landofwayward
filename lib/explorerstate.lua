@@ -16,7 +16,7 @@ do
 end
 
 function ExplorerState:init()
-  self.hp = 1
+  self.hp, self.enemyhp = 50, 50
   self.id = "maps/testboard.tmx"
   self.map = Map("maps/testboard.tmx")
   local px, py = self.map:locateEntity(EntityCode.SYLVIA)
@@ -70,6 +70,7 @@ function ExplorerState:draw()
 
   self:drawAmmo()
   self:drawHealth()
+  self:drawKeys()
 
   if Waygame.debug then
     local pl = self.player
@@ -86,29 +87,48 @@ function ExplorerState:drawAmmo()
   local amax = Waygame.ammoMax
   if amax == 0 then return end
   local ammo = Waygame.ammo
-  local x = (math.floor(Graphics.gameWidth / 2.0)-8)-(8*(amax-1))
-  local y = Graphics.gameHeight - 24
+  local x = (math.floor(Graphics.gameWidth / 2.0)-5)-(7*(amax-1))
+  local y = Graphics.gameHeight - 13
 
   local i = 1
   if ammo > 0 then
     while i<=(ammo-1) do
       Graphics:drawSprite( x, y, SpriteCode.AMMO4 )
-      i, x = i + 1, x + 16
+      i, x = i + 1, x + 14
     end
-
     Graphics:drawSprite( x, y, self.ammoAnim:current() )
-    i, x = i + 1, x + 16
+    i, x = i + 1, x + 14
   end
-
   while i<=amax do
     Graphics:drawSprite( x, y, SpriteCode.AMMO0 )
-    i, x = i + 1, x + 16
+    i, x = i + 1, x + 14
   end
 end
 
 function ExplorerState:drawHealth()
-  local x, y = 4, Graphics.gameHeight - 13
-  Graphics:drawMeterBar( x, y, SpriteCode.LIFEBAR, self.hp, "left" )
+  local y = Graphics.gameHeight - 13
+  local x1, x2 = 4, Graphics.gameWidth - 107
+  Graphics:drawMeterBar( x1, y, SpriteCode.LIFEBAR, self.hp, "left" )
+  Graphics:drawMeterBar( x2, y, SpriteCode.ENEMYBAR, self.enemyhp, "right" )
+end
+
+function ExplorerState:drawKeys()
+  local x, y = Graphics.gameWidth - 14, 4
+
+  -- if waygame.redkey then
+  Graphics:drawSprite( x, y, SpriteCode.GRAYKEY )
+  x = x - 10
+  Graphics:drawSprite( x, y, SpriteCode.PURPLEKEY )
+  x = x - 10
+  Graphics:drawSprite( x, y, SpriteCode.BLUEKEY )
+  x = x - 10
+  Graphics:drawSprite( x, y, SpriteCode.CYANKEY )
+  x = x - 10
+  Graphics:drawSprite( x, y, SpriteCode.GREENKEY )
+  x = x - 10
+  Graphics:drawSprite( x, y, SpriteCode.YELLOWKEY )
+  x = x - 10
+  Graphics:drawSprite( x, y, SpriteCode.REDKEY )
 end
 
 function ExplorerState:update(dt)
@@ -119,14 +139,16 @@ function ExplorerState:update(dt)
     self.camera:update(dt)
     self:updateAmmo(dt)
   end
-  self.hp = self.hp + dt * 5
-  if self.hp > 125 then self.hp = 0 end
+  self.hp = self.hp + dt * 10
+  if self.hp > 120 then self.hp = 0 end
+  self.enemyhp = self.enemyhp + dt * 10
+  if self.enemyhp > 120 then self.enemyhp = 0 end
 end
 
 function ExplorerState:updateAmmo(dt)
   local W = Waygame
   if W.ammo < W.ammoMax then
-    W.ammoRecover = W.ammoRecover + ( dt / 2.5 )
+    W.ammoRecover = W.ammoRecover + ((dt/2.5)*(1.0+W.ammoMax/7.0))
     if W.ammoRecover >= 1.0 then
       W.ammo = W.ammo + 1
       self.ammoAnim:resetPattern("newammo")
