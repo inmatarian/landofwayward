@@ -26,44 +26,35 @@ end
 
 ------------------------------------------------------------
 
-function love.run()
+local waygame
+
+function love.load()
   Runaway.init()
+  waygame = Wayward()
+end
 
-  local love = love
-  local dt = 0
-  local eventTrans = {
-    kp = "keypressed",
-    kr = "keyreleased",
-    q = "quit",
-    f = "focus"
-  }
+function love.keypressed(k, u)
+  waygame:keypressed(k, u)
+end
 
-  local game = Wayward()
+function love.keyreleased(k, u)
+  waygame:keyreleased(k, u)
+end
 
-  while true do
-    Runaway.reset()
-    love.timer.step()
-    dt = love.timer.getDelta()
-    if dt > 0.1 then dt = 0.1 end
+function love.focus(f)
+  waygame:focus(f)
+end
 
-    game:update(dt)
+function love.quit()
+  waygame:shutdown()
+end
 
-    love.graphics.clear()
-    game:draw()
+function love.draw()
+  waygame:draw()
+end
 
-    for event, a, b, c in love.event.poll() do
-      local evname = eventTrans[event]
-      local ret
-      if evname and game[evname] then ret = game[evname](game, a, b, c) end
-      if evname == "quit" and not ret then
-        Waygame:shutdown()
-        love.audio.stop()
-        return
-      end
-    end
-
-    love.timer.sleep(1)
-    love.graphics.present()
-  end
+function love.update(dt)
+  if dt > 0.1 then dt = 0.1 end
+  waygame:update(dt)
 end
 

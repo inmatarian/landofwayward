@@ -14,7 +14,6 @@ function Wayward:init()
   assert( Waygame == nil )
   Waygame = self
 
-  math.randomseed( os.time() )
   Graphics:init()
   Sound:init()
   Input:init()
@@ -57,14 +56,14 @@ function Wayward:update(dt)
   if Input:isClicked("f3") then self.debug = not self.debug end
   if Input:isClicked("f5") then Graphics:toggleScale() end
   if Input:isClicked("f8") then collectgarbage("collect") end
-  if Input:isClicked("f10") then love.event.push('q') end
+  if Input:isClicked("f10") then love.event.quit() end
 
   self:stateSend( "update", dt )
 
   Sound:update(dt)
   Graphics:update(dt)
   Input:update(dt)
-  if #self.stateStack == 0 then love.event.push('q') end
+  if #self.stateStack == 0 then love.event.quit() end
 end
 
 function Wayward:downupdate( object, dt )
